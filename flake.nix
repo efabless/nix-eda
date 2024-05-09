@@ -31,7 +31,10 @@
   }: {
     # Helper functions
     createDockerImage = import ./nix/create-docker.nix;
-    forAllSystems = inputs: function:
+    forAllSystems = {
+      using-inputs,
+      overlays ? [],
+    }: function:
       nixpkgs.lib.genAttrs [
         "x86_64-linux"
         "aarch64-linux"
@@ -41,12 +44,15 @@
         system: let
           pkgs = import nixpkgs {
             inherit system;
-            overlays = [
-              (import ./nix/overlay.nix)
-            ];
+            overlays =
+              [
+                (import ./nix/overlay.nix)
+              ]
+              ++ overlays;
           };
-          packageList = [pkgs] ++ inputs ++ [self.packages.${pkgs.system}];
-          pythonPackageList = [pkgs pkgs.python3.pkgs] ++ inputs ++ [self.packages.${pkgs.system}];
+          input-pkgs = map (x: x.packages."${system}") using-inputs;
+          packageList = [pkgs] ++ input-pkgs;
+          pythonPackageList = [pkgs pkgs.python3.pkgs] ++ input-pkgs;
         in
           function {
             inherit pkgs;
@@ -56,25 +62,27 @@
       );
 
     # Outputs
-    packages = self.forAllSystems ([]) (util: with util; {
-        magic = callPackage ./nix/magic.nix {};
-        netgen = callPackage ./nix/netgen.nix {};
-        ngspice = callPackage ./nix/ngspice.nix {};
-        klayout = callPackage ./nix/klayout.nix {};
-        klayout-pymod = callPackage ./nix/klayout-pymod.nix {};
-        surelog = callPackage ./nix/surelog.nix {};
-        tclFull = callPackage ./nix/tclFull.nix {};
-        tk-x11 = callPackage ./nix/tk-x11.nix {};
-        verilator = callPackage ./nix/verilator.nix {};
-        xschem = callPackage ./nix/xschem.nix {};
-        yosys-abc = callPackage ./nix/yosys-abc.nix {};
-        yosys = callPackage ./nix/yosys.nix {};
-        yosys-sby = callPackage ./nix/yosys-sby.nix {};
-        yosys-eqy = callPackage ./nix/yosys-eqy.nix {};
-        yosys-f4pga-sdc = callPackage ./nix/yosys-f4pga-sdc.nix {};
-        yosys-lighter = callPackage ./nix/yosys-lighter.nix {};
-        yosys-synlig-sv = callPackage ./nix/yosys-synlig-sv.nix {};
-      }
-      // (pkgs.lib.optionalAttrs (pkgs.system == "x86_64-linux") {yosys-ghdl = callPackage ./nix/yosys-ghdl.nix {};}));
+    packages = self.forAllSystems {using-inputs = [self];} (util:
+      with util;
+        {
+          magic = callPackage ./nix/magic.nix {};
+          netgen = callPackage ./nix/netgen.nix {};
+          ngspice = callPackage ./nix/ngspice.nix {};
+          klayout = callPackage ./nix/klayout.nix {};
+          klayout-pymod = callPackage ./nix/klayout-pymod.nix {};
+          surelog = callPackage ./nix/surelog.nix {};
+          tclFull = callPackage ./nix/tclFull.nix {};
+          tk-x11 = callPackage ./nix/tk-x11.nix {};
+          verilator = callPackage ./nix/verilator.nix {};
+          xschem = callPackage ./nix/xschem.nix {};
+          yosys-abc = callPackage ./nix/yosys-abc.nix {};
+          yosys = callPackage ./nix/yosys.nix {};
+          yosys-sby = callPackage ./nix/yosys-sby.nix {};
+          yosys-eqy = callPackage ./nix/yosys-eqy.nix {};
+          yosys-f4pga-sdc = callPackage ./nix/yosys-f4pga-sdc.nix {};
+          yosys-lighter = callPackage ./nix/yosys-lighter.nix {};
+          yosys-synlig-sv = callPackage ./nix/yosys-synlig-sv.nix {};
+        }
+        // (pkgs.lib.optionalAttrs (pkgs.system == "x86_64-linux") {yosys-ghdl = callPackage ./nix/yosys-ghdl.nix {};}));
   };
 }

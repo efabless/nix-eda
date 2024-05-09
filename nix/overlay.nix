@@ -7,7 +7,7 @@ new: old: {
         x11Support = true;
       })
     else (old.cairo);
-    
+
   ## slightly worse floating point errors cause ONE of the tests to fail on
   ## x86_64-darwin
   qrupdate =
@@ -17,5 +17,4 @@ new: old: {
         doCheck = false;
       }))
     else (old.qrupdate);
-
 }
