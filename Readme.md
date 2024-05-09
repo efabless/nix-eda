@@ -2,6 +2,8 @@
 
 # ❄️ nix-eda
 
+![A terminal running a command to create a shell with the tool xschem installed, then invoking xschem](./screenshot.webp)
+
 A [flake](https://nixos.wiki/wiki/Flakes) containing a collection of Nix
 derivations for EDA (Electronic Design Automation) utilities, curated by
 Efabless Corporation.
@@ -31,17 +33,31 @@ We compile and cache the tools for the following platforms:
 
 ### Directly
 
-As this repository is a Nix flake, if you have Nix installed with
-[flakes enabled](https://nixos.wiki/wiki/Flakes#Other_Distros.2C_without_Home-Manager),
-you may use any of the tools by creating a Terminal shell with the tool as follows:
+Before anything, if you haven't installed Nix using the
+[OpenLane 2 documentation](https://openlane2.readthedocs.io/en/latest/getting_started/common/nix_installation/index.html),
+make sure that:
+
+1. You have Nix installed.
+    * If not, see OpenLane 2's documentation on Nix-based installation linked
+    above.
+1. If you already have Nix installed, you have enabled the experimental Nix
+   features `flakes` and `nix-command`.
+    * If not, see this [this guide](https://nixos.wiki/wiki/Flakes#Other_Distros.2C_without_Home-Manager) for more info.
+1. You have the OpenLane [Cachix](https://cachix.org) enabled.
+    * If not, see the "If you already have Nix set up…" portion of the Openlane
+    2 installation documentation linked above.
+
+If you satisfy these conditions, you may use any of the tools by creating a Terminal shell with the tool as follows:
 
 ```sh
 nix shell github:efabless/nix-eda#magic
 ```
 
-then simply invoking `magic`.
+then simply invoking `magic`. If you correctly set up the OpenLane cachix, you
+won't have to build anything, but if you didn't, your computer will attempt to
+build it.
 
-You may create a shell with multiple tools as follows:
+You may also create a shell with multiple tools as follows:
 
 ```sh
 nix shell github:efabless/nix-eda#{magic,xschem}
