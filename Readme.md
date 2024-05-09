@@ -1,3 +1,5 @@
+# 🚧 WORK IN PROGRESS 🚧
+
 # ❄️ nix-eda
 
 A [flake](https://nixos.wiki/wiki/Flakes) containing a collection of Nix
