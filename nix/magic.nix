@@ -41,8 +41,8 @@
   cairo,
   python3,
   gnused,
-  rev ? "fd2b1eb9ee2e42eef88ce1d7a396fef3c23ec5bf",
-  sha256 ? "sha256-rNkTkSSwyEmPYkvfSY+vU0K2KRU++c2EwtMl390qFdE=",
+  rev ? "bfd938b5e2321cf9a6c15f398fbc987b56fcc179",
+  sha256 ? "sha256-xNhPnNGoJ8YiG6NFeFhOuKTB56rQvggJugIvukao6U8=",
 }:
 clangStdenv.mkDerivation rec {
   name = "magic-vlsi";
@@ -92,6 +92,7 @@ clangStdenv.mkDerivation rec {
   '';
 
   meta = with lib; {
+    mainProgram = "magic";
     description = "VLSI layout tool written in Tcl";
     homepage = "http://opencircuitdesign.com/magic/";
     license = licenses.mit;
