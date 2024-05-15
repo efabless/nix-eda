@@ -32,7 +32,8 @@
     # Helper functions
     createDockerImage = import ./nix/create-docker.nix;
     forAllSystems = {
-      using-inputs,
+      current,
+      withInputs ? [],
       overlays ? [],
     }: function:
       nixpkgs.lib.genAttrs [
@@ -50,22 +51,26 @@
               ]
               ++ overlays;
           };
-          input-pkgs = map (x: x.packages."${system}") using-inputs;
-          packageList = [pkgs] ++ input-pkgs;
-          pythonPackageList = [pkgs pkgs.python3.pkgs] ++ input-pkgs;
-          allpkgs = (builtins.foldl' (acc: elem: acc // elem) {} packageList);
-          allPythonPkgs = (builtins.foldl' (acc: elem: acc // elem) {} pythonPackageList);
+          inputPackageList = [pkgs] ++ (map (x: x.packages."${system}") withInputs);
+          pythonPackageList = [pkgs pkgs.python3.pkgs] ++ (map (x: x.packages."${system}") withInputs);
+          inputPkgs = (builtins.foldl' (acc: elem: acc // elem) {} inputPackageList);
+          inputPythonPkgs = (builtins.foldl' (acc: elem: acc // elem) {} pythonPackageList);
+          allPkgs = inputPkgs // current.packages."${system}";
+          allPythonPkgs = inputPythonPkgs // current.packages."${system}";
         in
           function {
             inherit pkgs;
-            inherit allpkgs;
-            callPackage = pkgs.lib.callPackageWith allpkgs;
+            inherit inputPkgs;
+            inherit inputPythonPkgs;
+            inherit allPkgs;
+            inherit allPythonPkgs;
+            callPackage = pkgs.lib.callPackageWith allPkgs;
             callPythonPackage = pkgs.lib.callPackageWith allPythonPkgs;
           }
       );
 
     # Outputs
-    packages = self.forAllSystems {using-inputs = [self];} (util:
+    packages = self.forAllSystems { current = self; } (util:
       with util;
         {
           magic = callPackage ./nix/magic.nix {};
