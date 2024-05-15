@@ -53,11 +53,14 @@
           input-pkgs = map (x: x.packages."${system}") using-inputs;
           packageList = [pkgs] ++ input-pkgs;
           pythonPackageList = [pkgs pkgs.python3.pkgs] ++ input-pkgs;
+          allpkgs = (builtins.foldl' (acc: elem: acc // elem) {} packageList);
+          allPythonPkgs = (builtins.foldl' (acc: elem: acc // elem) {} pythonPackageList);
         in
           function {
             inherit pkgs;
-            callPackage = pkgs.lib.callPackageWith (builtins.foldl' (acc: elem: acc // elem) {} packageList);
-            callPythonPackage = pkgs.lib.callPackageWith (builtins.foldl' (acc: elem: acc // elem) {} pythonPackageList);
+            inherit allpkgs;
+            callPackage = pkgs.lib.callPackageWith allpkgs;
+            callPythonPackage = pkgs.lib.callPackageWith allPythonPkgs;
           }
       );
 
