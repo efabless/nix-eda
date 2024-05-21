@@ -27,6 +27,11 @@
   fftw,
   withNgshared ? true,
   xorg,
+  autoconf269,
+  automake,
+  libtool,
+  readline,
+  llvmPackages,
 }:
 clangStdenv.mkDerivation rec {
   name = "ngspice";
@@ -40,20 +45,41 @@ clangStdenv.mkDerivation rec {
   nativeBuildInputs = [
     flex
     bison
+    autoconf269
+    automake
+    libtool
   ];
 
   buildInputs = [
     fftw
     xorg.libXaw
     xorg.libXext
+    readline
+    llvmPackages.openmp
   ];
 
   configureFlags = [
-    "--with-ngshared"
+    "--with-x"
     "--enable-xspice"
     "--enable-cider"
+    "--enable-predictor"
+    "--enable-osdi"
+    "--enable-klu"
+    "--with-readline=${readline.dev}"
+    "--enable-openmp"
   ];
-
+  
+  # This adds a dummy cpp file to ngspice_SOURCES, which forces automake to use
+  # CXXLD as `-lstdc++` doesn't work on macOS -- feel free to replace this with
+  # a more proper solution.
+  preConfigure = ''
+    set -x
+    echo "" > src/dummy.cpp
+    sed -i "s@\tngspice.c@\tngspice.c \\\\\n\tdummy.cpp@" ./src/Makefile.am
+    autoreconf -i
+    set +x
+  '';
+  
   enableParallelBuilding = true;
 
   meta = with lib; {
