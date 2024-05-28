@@ -53,8 +53,8 @@
           };
           inputPackageList = [pkgs] ++ (map (x: x.packages."${system}") withInputs);
           pythonPackageList = [pkgs pkgs.python3.pkgs] ++ (map (x: x.packages."${system}") withInputs);
-          inputPkgs = (builtins.foldl' (acc: elem: acc // elem) {} inputPackageList);
-          inputPythonPkgs = (builtins.foldl' (acc: elem: acc // elem) {} pythonPackageList);
+          inputPkgs = builtins.foldl' (acc: elem: acc // elem) {} inputPackageList;
+          inputPythonPkgs = builtins.foldl' (acc: elem: acc // elem) {} pythonPackageList;
           allPkgs = inputPkgs // current.packages."${system}";
           allPythonPkgs = inputPythonPkgs // current.packages."${system}";
         in
@@ -70,7 +70,7 @@
       );
 
     # Outputs
-    packages = self.forAllSystems { current = self; } (util:
+    packages = self.forAllSystems {current = self;} (util:
       with util;
         {
           magic = callPackage ./nix/magic.nix {};

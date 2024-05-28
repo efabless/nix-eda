@@ -68,7 +68,7 @@ clangStdenv.mkDerivation rec {
     "--with-readline=${readline.dev}"
     "--enable-openmp"
   ];
-  
+
   # This adds a dummy cpp file to ngspice_SOURCES, which forces automake to use
   # CXXLD as `-lstdc++` doesn't work on macOS -- feel free to replace this with
   # a more proper solution.
@@ -79,7 +79,7 @@ clangStdenv.mkDerivation rec {
     autoreconf -i
     set +x
   '';
-  
+
   enableParallelBuilding = true;
 
   meta = with lib; {

@@ -1,5 +1,3 @@
-# 🚧 WORK IN PROGRESS 🚧
-
 # ❄️ nix-eda
 
 ![A terminal running a command to create a shell with the tool xschem installed, then invoking xschem](./screenshot.webp)
@@ -7,6 +5,8 @@
 A [flake](https://nixos.wiki/wiki/Flakes) containing a collection of Nix
 derivations for EDA (Electronic Design Automation) utilities, curated by
 Efabless Corporation.
+
+> nix-eda is not affiliated with the NixOS Foundation or any of its affiliates.
 
 We compile and cache the tools for the following platforms:
 
