@@ -81,6 +81,7 @@
 
     patches = [
       ./patches/yosys/fix-clang-build.patch
+      ./patches/yosys/new-bitwuzla.patch
       ./patches/yosys/plugin-search-dirs.patch
     ];
 
