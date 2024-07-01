@@ -41,6 +41,7 @@
   curl,
   gcc,
   libgit2,
+  libpng,
   fetchurl,
   version ? "0.29.1",
   sha256 ? "sha256-AyTrrlnIlOI3mC5Rtm72b/iKnxr8uYZOUlRxmQW3rkc=",
@@ -66,7 +67,7 @@ clangStdenv.mkDerivation rec {
   nativeBuildInputs = [
     which
     perl
-    python3
+    (python3.withPackages(ps: with ps; [setuptools]))
     ruby
     gnused
     libsForQt5.wrapQtAppsHook
@@ -80,22 +81,19 @@ clangStdenv.mkDerivation rec {
     curl
     gcc
     libgit2
+    libpng
   ];
 
   propagatedBuildInputs = [
     ruby
   ];
 
-  configurePhase = ''
-    if [ "${
-      if clangStdenv.isDarwin
-      then "1"
-      else "0"
-    }" = "1" ]; then
-      export MAC_LIBGIT2_INC="${libgit2}/include"
-      export MAC_LIBGIT2_LIB="${libgit2}/lib"
-      export LDFLAGS="-headerpad_max_install_names"
-    fi
+  configurePhase = (lib.strings.optionalString clangStdenv.isDarwin ''
+    export MAC_LIBGIT2_INC="${libgit2}/include"
+    export MAC_LIBGIT2_LIB="${libgit2}/lib"
+    export LDFLAGS="-headerpad_max_install_names"
+  '') + ''
+    python3 ./setup.py egg_info
     ./build.sh\
       -prefix $out/lib\
       -without-qtbinding\
@@ -113,29 +111,22 @@ clangStdenv.mkDerivation rec {
 
   installPhase = ''
     mkdir -p $out/bin
-    make  -C build-release install
-    if [ "${
-      if clangStdenv.isDarwin
-      then "1"
-      else "0"
-    }" = "1" ]; then
-      cp $out/lib/klayout.app/Contents/MacOS/klayout $out/bin/
-    else
-      cp $out/lib/klayout $out/bin/
-    fi
-  '';
+    make -C build-release install
+    cp -r src/pymod/distutils_src/klayout.egg-info $out/lib/pymod/klayout-${version}.dist-info
+  '' + (if clangStdenv.isDarwin then ''
+    cp $out/lib/klayout.app/Contents/MacOS/klayout $out/bin/
+  '' else ''
+    cp $out/lib/klayout $out/bin/
+  '');
 
   # The automatic Qt wrapper overrides makeWrapperArgs
-  preFixup =
-    if clangStdenv.isDarwin
-    then ''
-      python3 ${./supporting/klayout/patch_binaries.py} $out/lib $out/lib/pymod/klayout $out/bin/klayout
-    ''
-    else "";
+  preFixup = lib.strings.optionalString clangStdenv.isDarwin ''
+    python3 ${./supporting/klayout/patch_binaries.py} $out/lib $out/lib/pymod/klayout $out/bin/klayout
+  '';
 
   meta = with lib; {
     description = "High performance layout viewer and editor with support for GDS and OASIS";
-    license = with licenses; [gpl2Plus];
+    license = with licenses; [gpl3Plus];
     homepage = "https://www.klayout.de/";
     changelog = "https://www.klayout.de/development.html#${version}";
     platforms = platforms.linux ++ platforms.darwin;
