@@ -25,10 +25,11 @@ python3.pkgs.toPythonModule (clangStdenv.mkDerivation rec {
     mkdir -p $out/${python3.sitePackages}
     ln -s ${klayout}/lib/pymod/klayout $out/${python3.sitePackages}/klayout
     ln -s ${klayout}/lib/pymod/pya $out/${python3.sitePackages}/pya
+    ln -s ${klayout}/lib/pymod/klayout*.dist-info $out/${python3.sitePackages}/
   '';
   meta = with lib; {
     description = "Python API access to KLayout";
-    license = with licenses; [gpl2Plus];
+    license = with licenses; [gpl3Plus];
     homepage = "https://www.klayout.de/";
     platforms = platforms.all;
   };
