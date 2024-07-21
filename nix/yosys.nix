@@ -11,7 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# Code adapated from Nixpkgs, original license follows:
+# ---
 # Copyright (c) 2003-2023 Eelco Dolstra and the Nixpkgs/NixOS contributors
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -19,6 +23,7 @@
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
 # the following conditions:
+#
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
@@ -30,6 +35,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 {
   symlinkJoin,
+  boost185,
   python3,
   lib,
   makeWrapper,
@@ -44,16 +50,17 @@
   libbsd,
   libffi,
   zlib,
+  version ? "0.38",
   rev ? "543faed9c8cd7c33bbb407577d56e4b7444ba61c",
   sha256 ? "sha256-mzMBhnIEgToez6mGFOvO7zBA+rNivZ9OnLQsjBBDamA=",
 }: let
-  py3env = python3.withPackages (pp:
-    with pp; [
-      click
-      xmlschema
-    ]);
-  self = clangStdenv.mkDerivation rec {
+  boost-python = boost185.override {
+    python = python3;
+    enablePython = true;
+  };
+  self = clangStdenv.mkDerivation {
     name = "yosys";
+    inherit version;
 
     src = fetchFromGitHub {
       owner = "YosysHQ";
@@ -63,41 +70,56 @@
     };
 
     nativeBuildInputs = [pkg-config bison flex];
-    propagatedBuildInputs = [yosys-abc];
-
-    buildInputs = [
+    propagatedBuildInputs = [
+      yosys-abc
+      python3
       tcl
       libedit
       libbsd
       libffi
       zlib
-      py3env
+      boost185
     ];
 
     passthru = {
-      inherit py3env;
-      inherit withPlugins;
+      pythonModule = python3.pkgs.toPythonModule (clangStdenv.mkDerivation {
+        name = "${python3.name}-pyosys";
+        buildInputs = [self];
+        unpackPhase = "true";
+        installPhase = ''
+          mkdir -p $out/${python3.sitePackages}
+          ln -s ${self}/${python3.sitePackages}/pyosys $out/${python3.sitePackages}/pyosys
+          mkdir -p $out/${python3.sitePackages}/pyosys-${version}.dist-info
+          sed 's/%VERSION%/${version}/' ${./supporting/yosys/PKG-INFO} > $out/${python3.sitePackages}/pyosys-${version}.dist-info/PKG-INFO
+          echo "pyosys" > $out/${python3.sitePackages}/pyosys-${version}.dist-info/top_level.txt
+        '';
+        meta = with lib; {
+          description = "Python API access to Yosys";
+          license = with licenses; [mit];
+          homepage = "https://yosyshq.com/";
+          platforms = platforms.all;
+        };
+      });
     };
 
     patches = [
       ./patches/yosys/fix-clang-build.patch
       ./patches/yosys/new-bitwuzla.patch
       ./patches/yosys/plugin-search-dirs.patch
+      ./patches/yosys/makefile.patch
     ];
 
     postPatch = ''
       substituteInPlace ./Makefile \
-        --replace 'echo UNKNOWN' 'echo ${builtins.substring 0 10 src.rev}'
+        --replace 'echo UNKNOWN' 'echo ${builtins.substring 0 10 rev}'
 
       chmod +x ./misc/yosys-config.in
       patchShebangs tests ./misc/yosys-config.in
-
-      sed -i 's@ENABLE_EDITLINE := 0@ENABLE_EDITLINE := 1@' Makefile
-      sed -i 's@ENABLE_READLINE := 1@ENABLE_READLINE := 0@' Makefile
-      sed -Ei 's@PRETTY = 1@PRETTY = 0@' ./Makefile
+      sed -Ei "s@PYTHON_DESTDIR := .+@PYTHON_DESTDIR=${placeholder "out"}/${python3.sitePackages}@" ./Makefile
+      sed -Ei 's@^BOOST_PYTHON_LIB .+@BOOST_PYTHON_LIB := ${boost-python}/lib/libboost_${python3.pythonAttr}${clangStdenv.hostPlatform.extensions.sharedLibrary}@' ./Makefile
     '';
 
-    preBuild = let
+    preConfigure = let
       shortAbcRev = builtins.substring 0 7 yosys-abc.rev;
     in ''
       chmod -R u+w .
@@ -110,13 +132,20 @@
         exit 1
       fi
     '';
+    makeFlags = ["PREFIX=${placeholder "out"}"];
 
     postBuild = "ln -sfv ${yosys-abc}/bin/abc ./yosys-abc";
     postInstall = "ln -sfv ${yosys-abc}/bin/abc $out/bin/yosys-abc";
 
-    makeFlags = ["PREFIX=${placeholder "out"}"];
     doCheck = false;
     enableParallelBuilding = true;
+
+    meta = with lib; {
+      description = "Yosys Open SYnthesis Suite";
+      license = with licenses; [mit];
+      homepage = "https://www.yosyshq.com/";
+      platforms = platforms.all;
+    };
   };
   withPlugins = plugins: let
     paths = lib.closePropagation plugins;

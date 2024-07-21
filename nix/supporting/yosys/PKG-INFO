@@ -1,0 +1,14 @@
+Metadata-Version: 2.1
+Name: klayout
+Version: %VERSION%
+Summary: Python API access to Yosys
+Home-page: https://yosyshq.com/
+Author: Claire Wolf
+Author-email: claire@clairexen.net
+License: MIT
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)

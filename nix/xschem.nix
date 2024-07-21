@@ -44,7 +44,7 @@
   tcl,
   tk-x11,
 }:
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   pname = "xschem";
   version = "3.4.4-669-g18a0c5e6";
 

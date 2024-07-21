@@ -22,11 +22,12 @@ We compile and cache the tools for the following platforms:
 * [Netgen](http://opencircuitdesign.com/netgen)
 * [ngspice](https://ngspice.sourceforge.io)
 * [KLayout](https://klayout.de)
-    * (+ Python module that can be accessed programmatically)
+    * (+ `.pythonModule` for Python module)
 * [Surelog](https://github.com/chipsalliance/Surelog)
 * [Verilator](https://verilator.org)
 * [Xschem](https://xschem.sourceforge.io/stefan/index.html)
 * [Yosys](https://github.com/YosysHQ/yosys)
+    * (+ `.pythonModule` for "pyosys" Python module)
     * (+ some plugins that can be accessed programmatically)
 
 ## Usage
@@ -66,7 +67,7 @@ nix shell github:efabless/nix-eda#{magic,xschem}
 ### As a dependency
 
 To be documented, but you may refer to the
-[`nix-eda` branch of OpenLane 2](https://github.com/efabless/openlane2/tree/nix-eda)
+[`dev` branch of OpenLane 2](https://github.com/efabless/openlane2/tree/nix-eda)
 as an example of how to use this repository as a dependency. OpenLane 2 uses
 this repository in addition to a number of other tools to provide a full
 digital design environment.

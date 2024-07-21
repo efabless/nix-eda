@@ -11,7 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Code adapated from Nixpkgs, original license follows:
+# ---
 # Copyright (c) 2003-2023 Eelco Dolstra and the Nixpkgs/NixOS contributors
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -19,6 +22,7 @@
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
 # the following conditions:
+#
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
@@ -44,7 +48,7 @@
   rev ? "291ba96285bcd7c2176f95229fc540bd88a25b88",
   sha256 ? "sha256-PE3mgjoe9kvEU/Ln++Dkpzag/7dAQBl7CBOxQJS/wk0=",
 }:
-clangStdenv.mkDerivation rec {
+clangStdenv.mkDerivation {
   name = "magic-vlsi";
   inherit rev;
 

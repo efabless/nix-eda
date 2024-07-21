@@ -15,64 +15,64 @@
   lib,
   yosys,
   fetchFromGitHub,
-  libedit,
-  libbsd,
-  zlib,
+  python3,
   boolector,
   z3,
   yices,
   rev ? "7415abfcfa8bf14f024f28e61e62f23ccd892415",
   sha256 ? "sha256-+h+Ddv0FYgovu4ee5e6gA+IiD2wThtzFxOMiGkG99g8=",
-}:
-yosys.stdenv.mkDerivation rec {
-  name = "yosys-sby";
-  dylibs = [];
+}: let
+  py3env = python3.withPackages (ps:
+    with ps; [
+      click
+    ]);
+in
+  yosys.stdenv.mkDerivation (finalAttrs: {
+    name = "yosys-sby";
+    dylibs = [];
 
-  src = fetchFromGitHub {
-    owner = "yosyshq";
-    repo = "sby";
-    inherit rev;
-    inherit sha256;
-  };
+    src = fetchFromGitHub {
+      owner = "yosyshq";
+      repo = "sby";
+      inherit rev;
+      inherit sha256;
+    };
 
-  makeFlags = [
-    "YOSYS_CONFIG=${yosys}/bin/yosys-config"
-  ];
+    makeFlags = [
+      "YOSYS_CONFIG=${yosys}/bin/yosys-config"
+    ];
 
-  buildInputs = [
-    yosys.py3env
-    yosys
-    libedit
-    libbsd
-    zlib
+    buildInputs = [
+      yosys
 
-    # solvers
-    boolector
-    z3
-    yices
-  ];
+      py3env
+      # solvers
+      boolector
+      z3
+      yices
+    ];
 
-  preConfigure = ''
-    sed -i.bak "s@/usr/local@$out@" Makefile
-    sed -i.bak "s@#!/usr/bin/env python3@#!${yosys.py3env}/bin/python3@" sbysrc/sby.py
-    sed -i.bak "s@\"/usr/bin/env\", @@" sbysrc/sby_core.py
-  '';
+    preConfigure = ''
+      sed -i.bak "s@/usr/local@$out@" Makefile
+      sed -i.bak "s@#!/usr/bin/env python3@#!${py3env}/bin/python3@" sbysrc/sby.py
+      sed -i.bak "s@\"/usr/bin/env\", @@" sbysrc/sby_core.py
+    '';
 
-  checkPhase = ''
-    make test
-  '';
+    checkPhase = ''
+      make test
+    '';
 
-  doCheck = false;
+    doCheck = false;
 
-  computed_PATH = lib.makeBinPath buildInputs;
-  makeWrapperArgs = [
-    "--prefix PATH : ${computed_PATH}"
-  ];
+    makeWrapperArgs = [
+      "--prefix PATH : ${lib.makeBinPath finalAttrs.buildInputs}"
+    ];
 
-  meta = with lib; {
-    description = "An automatic clock gating utility.";
-    homepage = "https://github.com/AUCOHL/Lighter";
-    license = licenses.asl20;
-    platforms = platforms.linux ++ platforms.darwin;
-  };
-}
+    meta = with lib; {
+      description = "SymbiYosys (sby) -- Front-end for Yosys-based formal verification flows";
+      homepage = "https://github.com/YosysHQ/sby";
+      mainProgram = "sby";
+      license = licenses.mit;
+      platforms = platforms.linux ++ platforms.darwin;
+    };
+  })

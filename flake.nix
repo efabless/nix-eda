@@ -33,30 +33,28 @@
     input-overlays = [
       (
         new: old: {
-          ## Cairo X11 on Mac
-          cairo =
-            if (old.stdenv.isDarwin)
-            then
-              (old.cairo.override {
-                x11Support = true;
-              })
-            else (old.cairo);
+          ## GHDL LLVM on Mac
+          ghdl-llvm = old.ghdl-llvm.overrideAttrs (self: super: {
+            meta.platforms = super.meta.platforms ++ ["x86_64-darwin"];
+          });
 
-          ## slightly worse floating point errors cause ONE of the tests to fail on
-          ## x86_64-darwin
-          qrupdate =
-            if old.system == "x86_64-darwin"
-            then
-              (old.qrupdate.overrideAttrs (finalAttrs: previousAttrs: {
-                doCheck = false;
-              }))
-            else (old.qrupdate);
+          ## Cairo X11 on Mac
+          cairo = old.cairo.override {
+            x11Support = true;
+          };
+
+          ## slightly worse floating point errors cause ONE of the tests to fail
+          ## on x86_64-darwin
+          qrupdate = old.qrupdate.overrideAttrs (self: super: {
+            doCheck = old.system != "x86_64-darwin";
+          });
         }
       )
     ];
 
     # Helper functions
     createDockerImage = import ./nix/create-docker.nix;
+    buildPythonEnvForInterpreter = import ./nix/build-python-env-for-interpreter.nix;
 
     forAllSystems = {
       current ? null,
@@ -120,27 +118,32 @@
         current = self;
         withInputs = [];
       } (util:
-        with util;
-          rec {
-            magic = callPackage ./nix/magic.nix {};
-            magic-vlsi = magic; # alias, there's a python package called magic
-            netgen = callPackage ./nix/netgen.nix {};
-            ngspice = callPackage ./nix/ngspice.nix {};
-            klayout = callPackage ./nix/klayout.nix {};
-            klayout-pymod = callPackage ./nix/klayout-pymod.nix {};
-            surelog = callPackage ./nix/surelog.nix {};
-            tclFull = callPackage ./nix/tclFull.nix {};
-            tk-x11 = callPackage ./nix/tk-x11.nix {};
-            verilator = callPackage ./nix/verilator.nix {};
-            xschem = callPackage ./nix/xschem.nix {};
-            yosys-abc = callPackage ./nix/yosys-abc.nix {};
-            yosys = callPackage ./nix/yosys.nix {};
-            yosys-sby = callPackage ./nix/yosys-sby.nix {};
-            yosys-eqy = callPackage ./nix/yosys-eqy.nix {};
-            yosys-f4pga-sdc = callPackage ./nix/yosys-f4pga-sdc.nix {};
-            yosys-lighter = callPackage ./nix/yosys-lighter.nix {};
-            yosys-synlig-sv = callPackage ./nix/yosys-synlig-sv.nix {};
-          }
-          // (pkgs.lib.optionalAttrs (pkgs.system == "x86_64-linux") {yosys-ghdl = callPackage ./nix/yosys-ghdl.nix {};}));
+        with util; let
+          self =
+            {
+              magic = callPackage ./nix/magic.nix {};
+              magic-vlsi = self.magic; # alias, there's a python package called magic
+              netgen = callPackage ./nix/netgen.nix {};
+              ngspice = callPackage ./nix/ngspice.nix {};
+              klayout = callPackage ./nix/klayout.nix {
+                buildPythonEnvForInterpreter = self.buildPythonEnvForInterpreter;
+              };
+              surelog = callPackage ./nix/surelog.nix {};
+              tclFull = callPackage ./nix/tclFull.nix {};
+              tk-x11 = callPackage ./nix/tk-x11.nix {};
+              verilator = callPackage ./nix/verilator.nix {};
+              xschem = callPackage ./nix/xschem.nix {};
+              yosys-abc = callPackage ./nix/yosys-abc.nix {};
+              yosys = callPackage ./nix/yosys.nix {};
+              yosys-sby = callPackage ./nix/yosys-sby.nix {};
+              yosys-eqy = callPackage ./nix/yosys-eqy.nix {};
+              yosys-f4pga-sdc = callPackage ./nix/yosys-f4pga-sdc.nix {};
+              yosys-lighter = callPackage ./nix/yosys-lighter.nix {};
+              yosys-synlig-sv = callPackage ./nix/yosys-synlig-sv.nix {};
+              yosys-ghdl = callPackage ./nix/yosys-ghdl.nix {};
+            }
+            // (pkgs.lib.optionalAttrs (pkgs.system == "x86_64-linux") {});
+        in
+          self);
   };
 }

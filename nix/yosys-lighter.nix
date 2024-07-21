@@ -13,16 +13,12 @@
 # limitations under the License.
 {
   lib,
-  clangStdenv,
   fetchFromGitHub,
   yosys,
-  libedit,
-  libbsd,
-  zlib,
   rev ? "b8e7d4ece5d6e22ab62c03eead761c736dbcaf3c",
   sha256 ? "sha256-gftQwWrq7KVVQXfb/SThOvbEJK0DoPpiQ3f3X1thBiQ=",
 }:
-clangStdenv.mkDerivation rec {
+yosys.stdenv.mkDerivation (finalAttrs: {
   name = "yosys-lighter";
   dylibs = ["lighter"];
 
@@ -34,11 +30,7 @@ clangStdenv.mkDerivation rec {
   };
 
   buildInputs = [
-    yosys.py3env
     yosys
-    libedit
-    libbsd
-    zlib
   ];
 
   buildPhase = ''
@@ -66,9 +58,8 @@ clangStdenv.mkDerivation rec {
     rm -rf $out/share/lighter_maps/**/*_blackbox.v
   '';
 
-  computed_PATH = lib.makeBinPath buildInputs;
   makeWrapperArgs = [
-    "--prefix PATH : ${computed_PATH}"
+    "--prefix PATH : ${lib.makeBinPath finalAttrs.buildInputs}"
   ];
 
   meta = with lib; {
@@ -77,4 +68,4 @@ clangStdenv.mkDerivation rec {
     license = licenses.asl20;
     platforms = platforms.linux ++ platforms.darwin;
   };
-}
+})

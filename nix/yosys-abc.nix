@@ -11,7 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Code adapated from Nixpkgs, original license follows:
+# ---
 # Copyright (c) 2003-2023 Eelco Dolstra and the Nixpkgs/NixOS contributors
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -19,6 +22,7 @@
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
 # the following conditions:
+#
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
@@ -28,6 +32,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
 {
   lib,
   clangStdenv,
@@ -37,7 +42,7 @@
   rev ? "896e5e7dedf9b9b1459fa019f1fa8aa8101fdf43",
   sha256 ? "sha256-sMBCIV698TIvU/sgTwgPFWDC1kl2TeGv+3pQ06gs7aM=",
 }:
-clangStdenv.mkDerivation rec {
+clangStdenv.mkDerivation {
   name = "yosys-abc";
 
   src = fetchFromGitHub {
@@ -61,7 +66,7 @@ clangStdenv.mkDerivation rec {
   installPhase = "mkdir -p $out/bin && mv abc $out/bin";
 
   # needed by yosys
-  passthru.rev = src.rev;
+  passthru.rev = rev;
 
   meta = with lib; {
     description = "A tool for squential logic synthesis and formal verification (YosysHQ's Fork)";

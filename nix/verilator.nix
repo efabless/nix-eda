@@ -44,7 +44,7 @@
   rev ? "67dfa37c560385827218350ea936eb1baf604240",
   sha256 ? "sha256-f06UzNw2MQ5me03EPrVFhkwxKum/GLDzQbDNTBsJMJs=",
 }:
-clangStdenv.mkDerivation rec {
+clangStdenv.mkDerivation {
   name = "verilator";
   inherit rev;
 
