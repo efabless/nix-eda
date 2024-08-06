@@ -46,7 +46,7 @@
 }:
 stdenv.mkDerivation rec {
   pname = "xschem";
-  version = "3.4.5-f850877";
+  version = "3.4.5-34-gf850877b"; # Run 'git describe' on the xschem repo
 
   src = fetchFromGitHub {
     owner = "StefanSchippers";
