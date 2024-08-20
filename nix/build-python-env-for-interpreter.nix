@@ -47,14 +47,12 @@
 }: pkglist: let
   extraLibs = pkglist target.python3.pkgs;
 in
-  # Create an executable of something that embeds Python with additional packages
-  # in its specific Python environment
+  # Create an executable of something that embeds Python with additional 
+  # packages in its specific Python environment.
   let
     env = let
       python3 = target.python3;
       paths = (python3.pkgs.requiredPythonModules (extraLibs ++ [python3])) ++ [target];
-      pythonPath = "${placeholder "out"}/${python3.sitePackages}";
-      pythonExecutable = "${placeholder "out"}/bin/${python3.executable}";
     in
       buildEnv {
         name = "${target.name}-${python3.name}-env";
@@ -69,6 +67,10 @@ in
           ''
             rm -rf "$out/bin"
             mkdir -p "$out/bin"
+             
+            LIBPY_OLD=$out/lib/${python3.libPrefix}
+            LIBPY_NEW=$(echo $LIBPY_OLD | sed -e 's@/python@/${target.name}-python@')
+            mv $LIBPY_OLD $LIBPY_NEW
 
             path=${target}
             if [ -d "$path/bin" ]; then
@@ -79,7 +81,7 @@ in
                   if [ -x "$prg" ]; then
                     makeWrapper "$path/bin/$prg" "$out/bin/$prg"\
                       --set NIX_PYTHONPREFIX "$out"\
-                      --set NIX_PYTHONPATH ${pythonPath}\
+                      --set NIX_PYTHONPATH "$LIBPY_NEW/site-packages"\
                       ${lib.optionalString (!permitUserSite) ''--set PYTHONNOUSERSITE "true"''}\
                       ${lib.concatStringsSep " " makeWrapperArgs}
                   fi

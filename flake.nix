@@ -126,7 +126,7 @@
               netgen = callPackage ./nix/netgen.nix {};
               ngspice = callPackage ./nix/ngspice.nix {};
               klayout = callPackage ./nix/klayout.nix {
-                buildPythonEnvForInterpreter = self.buildPythonEnvForInterpreter;
+                inherit (self) buildPythonEnvForInterpreter;
               };
               surelog = callPackage ./nix/surelog.nix {};
               tclFull = callPackage ./nix/tclFull.nix {};
