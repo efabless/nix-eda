@@ -66,11 +66,13 @@ nix shell github:efabless/nix-eda#{magic,xschem}
 
 ### As a dependency
 
-To be documented, but you may refer to the
-[`dev` branch of OpenLane 2](https://github.com/efabless/openlane2/tree/nix-eda)
+To be documented, but you may refer to
+[OpenLane 2](https://github.com/efabless/openlane2)
 as an example of how to use this repository as a dependency. OpenLane 2 uses
 this repository in addition to a number of other tools to provide a full
 digital design environment.
+
+Please note that the API for the functions provided in the Flake are not yet stable.
 
 ## ⚖️ License
 The Apache License, version 2.0. See 'License'.
