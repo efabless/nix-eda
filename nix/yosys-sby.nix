@@ -19,8 +19,8 @@
   boolector,
   z3,
   yices,
-  rev ? "7415abfcfa8bf14f024f28e61e62f23ccd892415",
-  sha256 ? "sha256-+h+Ddv0FYgovu4ee5e6gA+IiD2wThtzFxOMiGkG99g8=",
+  version ? "0.44",
+  sha256 ? "sha256-/oDbbdZuWPdg0Xrh+c4i283vML9QTfyWVu8kryb4WaE=",
 }: let
   py3env = python3.withPackages (ps:
     with ps; [
@@ -34,7 +34,7 @@ in
     src = fetchFromGitHub {
       owner = "yosyshq";
       repo = "sby";
-      inherit rev;
+      rev = "yosys-${version}";
       inherit sha256;
     };
 

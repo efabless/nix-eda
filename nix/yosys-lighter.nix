@@ -15,6 +15,7 @@
   lib,
   fetchFromGitHub,
   yosys,
+  python3,
   rev ? "b8e7d4ece5d6e22ab62c03eead761c736dbcaf3c",
   sha256 ? "sha256-gftQwWrq7KVVQXfb/SThOvbEJK0DoPpiQ3f3X1thBiQ=",
 }:
@@ -31,6 +32,7 @@ yosys.stdenv.mkDerivation (finalAttrs: {
 
   buildInputs = [
     yosys
+    python3
   ];
 
   buildPhase = ''

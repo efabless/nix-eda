@@ -13,8 +13,9 @@
 # limitations under the License.
 {
   lib,
-  yosys,
   fetchFromGitHub,
+  yosys,
+  python3,
   bash,
   rev ? "dfe9b1a15b494e7dd81a2b394dac30ea707ec5cc",
   sha256 ? "sha256-NJnu/uFCF+esqV2hrZughn1gdZXQJNTJbl1VyKns3XE=",
@@ -36,6 +37,7 @@ yosys.stdenv.mkDerivation (finalAttrs: {
 
   buildInputs = [
     yosys
+    python3
   ];
 
   preConfigure = ''

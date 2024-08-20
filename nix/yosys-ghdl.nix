@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 # Code adapated from Nixpkgs, original license follows:
 # ---
 # Copyright (c) 2003-2023 Eelco Dolstra and the Nixpkgs/NixOS contributors
@@ -36,6 +37,7 @@
   lib,
   yosys,
   fetchFromGitHub,
+  python3,
   ghdl-mcode,
   ghdl-llvm,
   pkg-config,
@@ -56,6 +58,7 @@ yosys.stdenv.mkDerivation {
   buildInputs =
     [
       yosys
+      python3
     ]
     ++ lib.optionals yosys.stdenv.isDarwin [ghdl-llvm]
     ++ lib.optionals yosys.stdenv.isLinux [ghdl-mcode];

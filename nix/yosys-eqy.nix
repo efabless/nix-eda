@@ -21,8 +21,8 @@
   zlib,
   yosys-sby,
   python3,
-  rev ? "5791c90fa6d6076b3c1ff37a3bd65e66f7748230",
-  sha256 ? "sha256-zgD8jjtK3pvHxOWvCpFyIuLYsJS5AQMrSARcqjFm9Js=",
+  version ? "0.44"
+  sha256 ? "sha256-KsMfBAp+meKalFCut3x4N6fPUxSuPPaQlsgSpx0mdfE=",
 }: let
   py3env = python3.withPackages (ps:
     with ps; [
@@ -41,7 +41,7 @@ in
     src = fetchFromGitHub {
       owner = "yosyshq";
       repo = "eqy";
-      inherit rev;
+      rev = "yosys-${version}";
       inherit sha256;
     };
 
@@ -56,6 +56,7 @@ in
       bitwuzla
       zlib
       yosys-sby
+      py3env
     ];
 
     preConfigure = ''
@@ -78,7 +79,7 @@ in
     '';
 
     doCheck = true;
-    
+
     makeWrapperArgs = [
       "--prefix PATH : ${lib.makeBinPath finalAttrs.buildInputs}"
     ];

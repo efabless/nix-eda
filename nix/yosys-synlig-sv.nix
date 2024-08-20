@@ -20,8 +20,8 @@
   antlr4,
   pkg-config,
   writeText,
-  rev ? "fe8f61f1480faa1ea63377c6f60de74e5dca2713",
-  sha256 ? "sha256-IBydjoVCYLAb8fNnjgUC1FthScp/CMP17ljCpSEhErU=",
+  rev ? "fd4b2bd9510c02c4cf42f8c4c6468c5c0a7dd9e6",
+  sha256 ? "sha256-yj+SBq6PqgPBcgz2zHZ9AUppllG/dqetU7lWPkFC+iE=",
 }: let
   yosys-mk = writeText "yosys-mk" ''
     t  := yosys

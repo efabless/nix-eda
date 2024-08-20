@@ -133,7 +133,6 @@
               tk-x11 = callPackage ./nix/tk-x11.nix {};
               verilator = callPackage ./nix/verilator.nix {};
               xschem = callPackage ./nix/xschem.nix {};
-              yosys-abc = callPackage ./nix/yosys-abc.nix {};
               yosys = callPackage ./nix/yosys.nix {};
               yosys-sby = callPackage ./nix/yosys-sby.nix {};
               yosys-eqy = callPackage ./nix/yosys-eqy.nix {};

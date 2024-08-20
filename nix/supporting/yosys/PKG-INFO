@@ -1,5 +1,5 @@
 Metadata-Version: 2.1
-Name: klayout
+Name: pyosys
 Version: %VERSION%
 Summary: Python API access to Yosys
 Home-page: https://yosyshq.com/

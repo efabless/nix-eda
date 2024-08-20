@@ -34,26 +34,49 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 {
-  symlinkJoin,
-  boost185,
-  python3,
   lib,
-  makeWrapper,
+  symlinkJoin,
   clangStdenv,
   fetchFromGitHub,
   pkg-config,
+  cmake,
+  makeWrapper,
+  boost185,
+  python3,
   bison,
   flex,
-  yosys-abc,
   tcl,
   libedit,
   libbsd,
   libffi,
   zlib,
-  version ? "0.38",
-  rev ? "543faed9c8cd7c33bbb407577d56e4b7444ba61c",
-  sha256 ? "sha256-mzMBhnIEgToez6mGFOvO7zBA+rNivZ9OnLQsjBBDamA=",
+  fetchurl,
+  bash,
+  version ? "0.44",
+  sha256 ? "sha256-Z8Nw+cfBZNW0s9WuLU1sdgfvFvADjG4XTLrPY8m5rMM=",
+  abc-sha256 ? "sha256-zFFesCztTEyf+gg23XjGy5hXNjRwh011Ux33jnjsf90=",
 }: let
+  abc = clangStdenv.mkDerivation {
+    name = "yosys-abc";
+
+    src = fetchurl {
+      url = "https://github.com/YosysHQ/yosys/releases/download/yosys-${version}/abc.tar.gz";
+      sha256 = abc-sha256;
+    };
+
+    patches = [
+      ./patches/yosys/abc-editline.patch
+    ];
+
+    postPatch = ''
+      sed -i "s@-lreadline@-ledit@" ./Makefile
+    '';
+
+    nativeBuildInputs = [cmake];
+    buildInputs = [libedit];
+
+    installPhase = "mkdir -p $out/bin && mv abc $out/bin";
+  };
   boost-python = boost185.override {
     python = python3;
     enablePython = true;
@@ -65,14 +88,12 @@
     src = fetchFromGitHub {
       owner = "YosysHQ";
       repo = "yosys";
-      inherit rev;
+      rev = "yosys-${version}";
       inherit sha256;
     };
 
     nativeBuildInputs = [pkg-config bison flex];
     propagatedBuildInputs = [
-      yosys-abc
-      python3
       tcl
       libedit
       libbsd
@@ -80,9 +101,13 @@
       zlib
       boost185
     ];
+    buildInputs = [
+      python3
+      abc
+    ];
 
     passthru = {
-      pythonModule = python3.pkgs.toPythonModule (clangStdenv.mkDerivation {
+      pyosys = python3.pkgs.toPythonModule (clangStdenv.mkDerivation {
         name = "${python3.name}-pyosys";
         buildInputs = [self];
         unpackPhase = "true";
@@ -100,42 +125,40 @@
           platforms = platforms.all;
         };
       });
+      inherit withPlugins;
     };
+    
+    makeFlags = [
+      "PRETTY=0"
+      "PREFIX=${placeholder "out"}"
+      "ENABLE_READLINE=0"
+      "ENABLE_EDITLINE=1"
+      "ENABLE_YOSYS=1"
+      "ENABLE_PYOSYS=1"
+      "ABCEXTERNAL=${abc}/bin/abc"
+      "PYTHON_DESTDIR=${placeholder "out"}/${python3.sitePackages}"
+      "BOOST_PYTHON_LIB=${boost-python}/lib/libboost_${python3.pythonAttr}${clangStdenv.hostPlatform.extensions.sharedLibrary}"
+    ];
 
     patches = [
-      ./patches/yosys/fix-clang-build.patch
       ./patches/yosys/new-bitwuzla.patch
       ./patches/yosys/plugin-search-dirs.patch
-      ./patches/yosys/makefile.patch
+      (fetchurl {
+        url = "https://github.com/YosysHQ/yosys/pull/4553.patch";
+        sha256 = "sha256-PVhfjBe4SchfnOUGlhkhjhex3EkxAgeEy31G8QCYve0=";
+      })
     ];
 
     postPatch = ''
       substituteInPlace ./Makefile \
-        --replace 'echo UNKNOWN' 'echo ${builtins.substring 0 10 rev}'
+        --replace 'echo UNKNOWN' 'echo ${version}'
 
       chmod +x ./misc/yosys-config.in
-      patchShebangs tests ./misc/yosys-config.in
-      sed -Ei "s@PYTHON_DESTDIR := .+@PYTHON_DESTDIR=${placeholder "out"}/${python3.sitePackages}@" ./Makefile
-      sed -Ei 's@^BOOST_PYTHON_LIB .+@BOOST_PYTHON_LIB := ${boost-python}/lib/libboost_${python3.pythonAttr}${clangStdenv.hostPlatform.extensions.sharedLibrary}@' ./Makefile
+      set -x
     '';
 
-    preConfigure = let
-      shortAbcRev = builtins.substring 0 7 yosys-abc.rev;
-    in ''
-      chmod -R u+w .
-      make config-clang
-
-      echo 'ABCEXTERNAL = ${yosys-abc}/bin/abc' >> Makefile.conf
-
-      if ! grep -q "ABCREV = ${shortAbcRev}" Makefile; then
-        echo "ERROR: yosys isn't compatible with the provided abc (${yosys-abc}), failing."
-        exit 1
-      fi
-    '';
-    makeFlags = ["PREFIX=${placeholder "out"}"];
-
-    postBuild = "ln -sfv ${yosys-abc}/bin/abc ./yosys-abc";
-    postInstall = "ln -sfv ${yosys-abc}/bin/abc $out/bin/yosys-abc";
+    postBuild = "ln -sfv ${abc}/bin/abc ./yosys-abc";
+    postInstall = "ln -sfv ${abc}/bin/abc $out/bin/yosys-abc";
 
     doCheck = false;
     enableParallelBuilding = true;
@@ -159,6 +182,12 @@
     paths = paths ++ [self];
     nativeBuildInputs = [makeWrapper];
     postBuild = ''
+      cat <<SCRIPT > $out/bin/with_yosys_plugin_env
+      #!${bash}/bin/bash
+      export NIX_YOSYS_PLUGIN_DIRS='$out/share/yosys/plugins'
+      exec "\$@"
+      SCRIPT
+      chmod +x $out/bin/with_yosys_plugin_env
       wrapProgram $out/bin/yosys \
         --set NIX_YOSYS_PLUGIN_DIRS $out/share/yosys/plugins \
         ${module_flags}
