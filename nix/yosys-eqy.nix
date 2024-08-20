@@ -21,7 +21,7 @@
   zlib,
   yosys-sby,
   python3,
-  version ? "0.44"
+  version ? "0.44",
   sha256 ? "sha256-KsMfBAp+meKalFCut3x4N6fPUxSuPPaQlsgSpx0mdfE=",
 }: let
   py3env = python3.withPackages (ps:
