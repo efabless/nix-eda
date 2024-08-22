@@ -41,8 +41,8 @@
   cairo,
   python3,
   gnused,
-  rev ? "291ba96285bcd7c2176f95229fc540bd88a25b88",
-  sha256 ? "sha256-PE3mgjoe9kvEU/Ln++Dkpzag/7dAQBl7CBOxQJS/wk0=",
+  rev ? "0c36365db8921397a258abbea0369cee8d560c99",
+  sha256 ? "sha256-Ksi6eqJRsyT7Vd/CUYarF5XDpN18m/k/kTue26Zf2EU=",
 }:
 clangStdenv.mkDerivation rec {
   name = "magic-vlsi";
