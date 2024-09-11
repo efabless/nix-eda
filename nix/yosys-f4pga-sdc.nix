@@ -13,17 +13,14 @@
 # limitations under the License.
 {
   lib,
-  libedit,
-  libbsd,
-  yosys,
-  clangStdenv,
   fetchFromGitHub,
-  zlib,
+  yosys,
+  python3,
   bash,
   rev ? "dfe9b1a15b494e7dd81a2b394dac30ea707ec5cc",
   sha256 ? "sha256-NJnu/uFCF+esqV2hrZughn1gdZXQJNTJbl1VyKns3XE=",
 }:
-clangStdenv.mkDerivation rec {
+yosys.stdenv.mkDerivation (finalAttrs: {
   name = "yosys-f4pga-sdc";
   dylibs = ["sdc" "design_introspection"];
 
@@ -33,12 +30,14 @@ clangStdenv.mkDerivation rec {
     inherit rev;
     inherit sha256;
   };
+
+  nativeBuildInputs = [
+    bash
+  ];
+
   buildInputs = [
     yosys
-    yosys.py3env
-    libedit
-    libbsd
-    zlib
+    python3
   ];
 
   preConfigure = ''
@@ -56,15 +55,14 @@ clangStdenv.mkDerivation rec {
     mv design_introspection-plugin/build/design_introspection.so $out/share/yosys/plugins/design_introspection.so
   '';
 
-  computed_PATH = lib.makeBinPath buildInputs;
   makeWrapperArgs = [
-    "--prefix PATH : ${computed_PATH}"
+    "--prefix PATH : ${lib.makeBinPath finalAttrs.buildInputs}"
   ];
 
   meta = with lib; {
-    description = "SystemVerilog and UHDM front end plugin for Yosys";
-    homepage = "https://github.com/chipsalliance/synlig";
+    description = "SDC Plugin for Yosys developed as part of the F4PGA project";
+    homepage = "https://github.com/chipsalliance/yosys-f4pga-plugins";
     license = licenses.asl20;
     platforms = platforms.linux ++ platforms.darwin;
   };
-}
+})

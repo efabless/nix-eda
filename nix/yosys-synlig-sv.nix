@@ -14,38 +14,15 @@
 {
   lib,
   yosys,
-  clangStdenv,
   fetchFromGitHub,
   surelog,
   capnproto,
   antlr4,
   pkg-config,
   writeText,
-  rev ? "fe8f61f1480faa1ea63377c6f60de74e5dca2713",
-  sha256 ? "sha256-IBydjoVCYLAb8fNnjgUC1FthScp/CMP17ljCpSEhErU=",
-}:
-clangStdenv.mkDerivation rec {
-  name = "yosys-synlig-sv";
-  dylibs = ["synlig-sv"];
-
-  src = fetchFromGitHub {
-    owner = "chipsalliance";
-    repo = "synlig";
-    inherit rev;
-    inherit sha256;
-  };
-  buildInputs = [
-    yosys
-    yosys.py3env
-    surelog
-    capnproto
-    antlr4.runtime.cpp
-  ];
-
-  nativeBuildInputs = [
-    pkg-config
-  ];
-
+  rev ? "fd4b2bd9510c02c4cf42f8c4c6468c5c0a7dd9e6",
+  sha256 ? "sha256-yj+SBq6PqgPBcgz2zHZ9AUppllG/dqetU7lWPkFC+iE=",
+}: let
   yosys-mk = writeText "yosys-mk" ''
     t  := yosys
     ts := ''$(call GetTargetStructName,''${t})
@@ -53,33 +30,54 @@ clangStdenv.mkDerivation rec {
     ''${ts}.src_dir         := ''$(shell yosys-config --datdir/include)
     ''${ts}.mod_dir         := ''${TOP_DIR}third_party/yosys_mod/
   '';
+in
+  yosys.stdenv.mkDerivation (finalAttrs: {
+    name = "yosys-synlig-sv";
+    dylibs = ["synlig-sv"];
 
-  postPatch = ''
-    sed -i 's/AST::process(design, current_ast,/AST::process(design, current_ast, false,/' frontends/systemverilog/uhdm_common_frontend.cc
-    rm third_party/Build.surelog.mk
-    cp ${yosys-mk} third_party/Build.yosys.mk
-  '';
+    src = fetchFromGitHub {
+      owner = "chipsalliance";
+      repo = "synlig";
+      inherit rev;
+      inherit sha256;
+    };
 
-  buildPhase = ''
-    make build@systemverilog-plugin\
-      -j$NIX_BUILD_CORES\
-      LDFLAGS="''$(yosys-config --ldflags)"
-  '';
+    buildInputs = [
+      yosys
+      surelog
+      capnproto
+      antlr4.runtime.cpp
+    ];
 
-  installPhase = ''
-    mkdir -p $out/share/yosys/plugins
-    mv build/release/systemverilog-plugin/systemverilog.so $out/share/yosys/plugins/synlig-sv.so
-  '';
+    nativeBuildInputs = [
+      pkg-config
+    ];
 
-  computed_PATH = lib.makeBinPath buildInputs;
-  makeWrapperArgs = [
-    "--prefix PATH : ${computed_PATH}"
-  ];
+    postPatch = ''
+      sed -i 's/AST::process(design, current_ast,/AST::process(design, current_ast, false,/' frontends/systemverilog/uhdm_common_frontend.cc
+      rm third_party/Build.surelog.mk
+      cp ${yosys-mk} third_party/Build.yosys.mk
+    '';
 
-  meta = with lib; {
-    description = "SystemVerilog and UHDM front end plugin for Yosys";
-    homepage = "https://github.com/chipsalliance/synlig";
-    license = licenses.asl20;
-    platforms = platforms.linux ++ platforms.darwin;
-  };
-}
+    buildPhase = ''
+      make build@systemverilog-plugin\
+        -j$NIX_BUILD_CORES\
+        LDFLAGS="''$(yosys-config --ldflags)"
+    '';
+
+    installPhase = ''
+      mkdir -p $out/share/yosys/plugins
+      mv build/release/systemverilog-plugin/systemverilog.so $out/share/yosys/plugins/synlig-sv.so
+    '';
+
+    makeWrapperArgs = [
+      "--prefix PATH : ${lib.makeBinPath finalAttrs.buildInputs}"
+    ];
+
+    meta = with lib; {
+      description = "SystemVerilog and UHDM front end plugin for Yosys";
+      homepage = "https://github.com/chipsalliance/synlig";
+      license = licenses.asl20;
+      platforms = platforms.linux ++ platforms.darwin;
+    };
+  })

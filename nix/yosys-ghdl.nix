@@ -11,7 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+# Code adapated from Nixpkgs, original license follows:
+# ---
 # Copyright (c) 2003-2023 Eelco Dolstra and the Nixpkgs/NixOS contributors
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -19,6 +23,7 @@
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
 # the following conditions:
+#
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
@@ -32,16 +37,14 @@
   lib,
   yosys,
   fetchFromGitHub,
-  clangStdenv,
-  libedit,
-  libbsd,
-  zlib,
-  ghdl,
+  python3,
+  ghdl-mcode,
+  ghdl-llvm,
   pkg-config,
   rev ? "c9b05e481423c55ffcbb856fd5296701f670808c",
   sha256 ? "sha256-tT2+DXUtbJIBzBUBcyG2sz+3G+dTkciLVIczcRPr0Jw=",
 }:
-clangStdenv.mkDerivation {
+yosys.stdenv.mkDerivation {
   name = "yosys-ghdl";
   dylibs = ["ghdl"];
 
@@ -52,13 +55,13 @@ clangStdenv.mkDerivation {
     inherit sha256;
   };
 
-  buildInputs = [
-    yosys
-    libedit
-    libbsd
-    zlib
-    ghdl
-  ];
+  buildInputs =
+    [
+      yosys
+      python3
+    ]
+    ++ lib.optionals yosys.stdenv.isDarwin [ghdl-llvm]
+    ++ lib.optionals yosys.stdenv.isLinux [ghdl-mcode];
 
   nativeBuildInputs = [
     pkg-config
@@ -75,6 +78,6 @@ clangStdenv.mkDerivation {
     description = "VHDL synthesis (based on GHDL and Yosys)";
     homepage = "http://ghdl.github.io/ghdl/using/Synthesis.html";
     license = licenses.gpl3Plus;
-    platforms = ["x86_64-linux"];
+    platforms = ["x86_64-linux" "x86_64-darwin"];
   };
 }

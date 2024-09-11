@@ -44,7 +44,7 @@
   tcl,
   tk-x11,
 }:
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   pname = "xschem";
   version = "3.4.5-34-gf850877b"; # Run 'git describe' on the xschem repo
 
