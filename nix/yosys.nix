@@ -143,10 +143,6 @@
     patches = [
       ./patches/yosys/new-bitwuzla.patch
       ./patches/yosys/plugin-search-dirs.patch
-      (fetchurl {
-        url = "https://github.com/YosysHQ/yosys/pull/4553.patch";
-        sha256 = "sha256-zXOxCFjrva4a2DoFBVkEoRLbtOYu7+Q8e6SekLUqu2c=";
-      })
     ];
 
     postPatch = ''
