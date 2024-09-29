@@ -127,7 +127,7 @@
       });
       inherit withPlugins;
     };
-    
+
     makeFlags = [
       "PRETTY=0"
       "PREFIX=${placeholder "out"}"
@@ -141,7 +141,6 @@
     ];
 
     patches = [
-      ./patches/yosys/new-bitwuzla.patch
       ./patches/yosys/plugin-search-dirs.patch
       ./patches/yosys/python-flag.patch
     ];

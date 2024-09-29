@@ -33,50 +33,78 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 {
-  lib,
-  yosys,
+  stdenv,
   fetchFromGitHub,
+  lib,
   python3,
-  ghdl-mcode,
-  ghdl-llvm,
+  cmake,
+  lingeling,
+  btor2tools,
+  symfpu,
+  gtest,
+  gmp,
+  cadical,
+  minisat,
+  picosat,
+  cryptominisat,
+  zlib,
   pkg-config,
-  rev ? "c9b05e481423c55ffcbb856fd5296701f670808c",
-  sha256 ? "sha256-tT2+DXUtbJIBzBUBcyG2sz+3G+dTkciLVIczcRPr0Jw=",
+  rev ? "3bc0f9f1aca04afabe1aff53dd0937924618b2ad",
+  rev-date ? "2022-10-03",
+  sha256 ? "sha256-UXZERl7Nedwex/oUrcf6/GkDSgOQ537WDYm117RfvWo=",
+  # "*** internal error in 'lglib.c': watcher stack overflow" on aarch64-linux
+  withLingeling ? !stdenv.hostPlatform.isAarch64,
 }:
-yosys.stdenv.mkDerivation {
-  name = "yosys-ghdl";
-  dylibs = ["ghdl"];
+stdenv.mkDerivation (self: {
+  pname = "bitwuzla";
+  version = "unstable-${rev-date}";
 
   src = fetchFromGitHub {
-    owner = "ghdl";
-    repo = "ghdl-yosys-plugin";
+    owner = "bitwuzla";
+    repo = "bitwuzla";
     inherit rev;
     inherit sha256;
   };
 
+  nativeBuildInputs = [cmake pkg-config];
   buildInputs =
     [
-      yosys
-      python3
+      cadical
+      cryptominisat
+      picosat
+      minisat
+      btor2tools
+      symfpu
+      gmp
+      zlib
     ]
-    ++ lib.optionals yosys.stdenv.isDarwin [ghdl-llvm]
-    ++ lib.optionals yosys.stdenv.isLinux [ghdl-mcode];
+    ++ lib.optional withLingeling lingeling;
 
-  nativeBuildInputs = [
-    pkg-config
-  ];
+  cmakeFlags =
+    [
+      "-DBUILD_SHARED_LIBS=ON"
+      "-DPicoSAT_INCLUDE_DIR=${lib.getDev picosat}/include/picosat"
+      "-DBtor2Tools_INCLUDE_DIR=${lib.getDev btor2tools}/include/btor2parser"
+      "-DBtor2Tools_LIBRARIES=${lib.getLib btor2tools}/lib/libbtor2parser${stdenv.hostPlatform.extensions.sharedLibrary}"
+    ]
+    ++ lib.optional self.doCheck "-DTESTING=YES";
 
-  doCheck = false;
-
-  installPhase = ''
-    mkdir -p $out/share/yosys/plugins
-    cp ghdl.so $out/share/yosys/plugins/ghdl.so
+  checkInputs = [python3 gtest];
+  doCheck = false; # they take freaking forever
+  preCheck = let
+    var =
+      if stdenv.isDarwin
+      then "DYLD_LIBRARY_PATH"
+      else "LD_LIBRARY_PATH";
+  in ''
+    export ${var}=$(readlink -f lib)
+    patchShebangs ..
   '';
 
-  meta = with lib; {
-    description = "VHDL synthesis (based on GHDL and Yosys)";
-    homepage = "http://ghdl.github.io/ghdl/using/Synthesis.html";
-    license = licenses.gpl3Plus;
-    platforms = ["x86_64-linux" "x86_64-darwin"];
+  meta = {
+    description = "A SMT solver for fixed-size bit-vectors, floating-point arithmetic, arrays, and uninterpreted functions";
+    homepage = "https://bitwuzla.github.io";
+    license = lib.licenses.mit;
+    platforms = lib.platforms.unix;
   };
-}
+})
