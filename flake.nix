@@ -119,10 +119,10 @@
         withInputs = [];
       } (util:
         with util; let
-          self =
+          all =
             {
               magic = callPackage ./nix/magic.nix {};
-              magic-vlsi = self.magic; # alias, there's a python package called magic
+              magic-vlsi = all.magic; # alias, there's a python package called magic
               netgen = callPackage ./nix/netgen.nix {};
               ngspice = callPackage ./nix/ngspice.nix {};
               klayout = callPackage ./nix/klayout.nix {
@@ -144,6 +144,6 @@
             }
             // (pkgs.lib.optionalAttrs (pkgs.system == "x86_64-linux") {});
         in
-          self);
+          all);
   };
 }
