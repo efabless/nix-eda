@@ -47,7 +47,7 @@
 }: pkglist: let
   extraLibs = pkglist target.python3.pkgs;
 in
-  # Create an executable of something that embeds Python with additional 
+  # Create an executable of something that embeds Python with additional
   # packages in its specific Python environment.
   let
     env = let
@@ -67,7 +67,7 @@ in
           ''
             rm -rf "$out/bin"
             mkdir -p "$out/bin"
-             
+
             LIBPY_OLD=$out/lib/${python3.libPrefix}
             LIBPY_NEW=$(echo $LIBPY_OLD | sed -e 's@/python@/${target.name}-python@')
             mv $LIBPY_OLD $LIBPY_NEW

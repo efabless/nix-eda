@@ -17,10 +17,8 @@
   fetchPypi,
   setuptools,
   setuptools_scm,
-
   # Tools
   klayout,
-
   # Python
   matplotlib,
   numpy,
@@ -54,10 +52,8 @@
   cython_0,
   ruamel-yaml,
   jinja2,
-}:
-let
-
-  rectangle-packer = buildPythonPackage rec {
+}: let
+  rectangle-packer = buildPythonPackage {
     pname = "rectangle-packer";
     format = "pyproject";
     version = "2.0.2";
@@ -67,18 +63,17 @@ let
       cython_0
     ];
 
-    propagatedBuildInputs =
-      [
-      ];
+    propagatedBuildInputs = [
+    ];
 
     src = fetchPypi {
-      inherit pname version;
+      inherit (rectangle-packer) pname version;
       sha256 = "sha256-NORQApJV9ybEqObpOaGMrVh58Nn+WIwYeP6FyHLcvkE=";
     };
     doCheck = false;
   };
 
-  rectpack = buildPythonPackage rec {
+  rectpack = buildPythonPackage {
     pname = "rectpack";
     format = "pyproject";
     version = "0.2.2";
@@ -87,18 +82,17 @@ let
       setuptools
     ];
 
-    propagatedBuildInputs =
-      [
-      ];
+    propagatedBuildInputs = [
+    ];
 
     src = fetchPypi {
-      inherit pname version;
+      inherit (rectpack) pname version;
       sha256 = "sha256-FeODUF/fuutV7GQKWCXZyizokBmmzdVS1uV+w2xouio=";
     };
     doCheck = false;
   };
 
-  ruamel-yaml-string = buildPythonPackage rec {
+  ruamel-yaml-string = buildPythonPackage {
     pname = "ruamel.yaml.string";
     format = "pyproject";
     version = "0.1.1";
@@ -112,13 +106,13 @@ let
     ];
 
     src = fetchPypi {
-      inherit pname version;
+      inherit (ruamel-yaml-string) pname version;
       sha256 = "sha256-enrtzAVdRcAE04t1b1hHTr77EGhR9M5WzlhBVwl4Q1A=";
     };
     doCheck = false;
   };
 
-  kfactory = buildPythonPackage rec {
+  kfactory = buildPythonPackage {
     pname = "kfactory";
     format = "pyproject";
     version = "0.18.4";
@@ -146,13 +140,13 @@ let
     ];
 
     src = fetchPypi {
-      inherit pname version;
+      inherit (kfactory) pname version;
       sha256 = "sha256-2thvsHTlc61U5LiaDLlEAcKYY7Vh2ZGe5Z7tAN1sUtQ=";
     };
     doCheck = false;
   };
 
-  trimesh-4_4_1 = buildPythonPackage rec {
+  trimesh = buildPythonPackage {
     pname = "trimesh";
     format = "pyproject";
     version = "4.4.1";
@@ -166,13 +160,13 @@ let
     ];
 
     src = fetchPypi {
-      inherit pname version;
+      inherit (trimesh) pname version;
       sha256 = "sha256-dn/jyGa6dObZqdIWw07MHP4vvz8SmmwR1ZhxcFpZGro=";
     };
     doCheck = false;
   };
 
-  self = buildPythonPackage rec {
+  self = buildPythonPackage {
     pname = "gdsfactory";
     format = "pyproject";
     version = "8.7.3";
@@ -204,14 +198,14 @@ let
       mapbox-earcut
       networkx
       #scikit-image
-      trimesh-4_4_1
+      trimesh
       ipykernel
       attrs
       jinja2
     ];
 
     src = fetchPypi {
-      inherit pname version;
+      inherit (self) pname version;
       sha256 = "sha256-F2XMb1bSlg3Psydp1rag7Z4jO9+o23d0EySDY4WhqbI=";
     };
     doCheck = false;
@@ -220,6 +214,14 @@ let
       substituteInPlace pyproject.toml \
         --replace "\"scikit-image\"," ""
     '';
+
+    meta = {
+      description = "python library to design chips (Photonics, Analog, Quantum, MEMs, ...), objects for 3D printing or PCBs.";
+      homepage = "https://gdsfactory.github.io/gdsfactory/";
+      license = [lib.licenses.mit];
+      platforms = lib.platforms.unix;
+      mainProgram = "gf";
+    };
   };
 in
-self
+  self

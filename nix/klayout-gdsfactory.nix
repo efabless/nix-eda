@@ -14,14 +14,12 @@
 {
   klayout,
   gdsfactory,
-}:
-let
-
+}: let
   self = klayout.withPythonPackages (
-    ps: with ps; [
-      gdsfactory
-    ]
+    ps:
+      with ps; [
+        gdsfactory
+      ]
   );
-
 in
-self
+  self

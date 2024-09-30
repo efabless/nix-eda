@@ -158,7 +158,7 @@
 
     passthru = {
       inherit python3;
-      
+
       pymod = pythonModule;
 
       withPythonPackages = buildPythonEnvForInterpreter {
