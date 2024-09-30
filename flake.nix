@@ -128,6 +128,8 @@
               klayout = callPackage ./nix/klayout.nix {
                 inherit (self) buildPythonEnvForInterpreter;
               };
+              gdsfactory = callPythonPackage ./nix/gdsfactory.nix {};
+              klayout-gdsfactory = callPackage ./nix/klayout-gdsfactory.nix {};
               surelog = callPackage ./nix/surelog.nix {};
               tclFull = callPackage ./nix/tclFull.nix {};
               tk-x11 = callPackage ./nix/tk-x11.nix {};
