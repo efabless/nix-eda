@@ -32,6 +32,19 @@
     # Helper functions
     createDockerImage = import ./nix/create-docker.nix;
     buildPythonEnvForInterpreter = import ./nix/build-python-env-for-interpreter.nix;
+    composePythonOverlay = composable: pkgs': pkgs: {
+      python3 = pkgs.python3.override {
+        packageOverrides = pkgs'.pythonOverrides;
+      };
+
+      pythonOverrides =
+        pkgs.lib.composeExtensions (composable pkgs' pkgs)
+        (
+          if (builtins.hasAttr "pythonOverrides" pkgs)
+          then pkgs.pythonOverrides
+          else _: _: {}
+        );
+    };
     forAllSystems = fn:
       nixpkgs.lib.genAttrs [
         "x86_64-linux"
@@ -42,10 +55,20 @@
       fn;
 
     # Common
-    overlays = [
-      (
-        pkgs': pkgs: {
-          ## GHDL LLVM on Mac
+    overlays = {
+      default = nixpkgs.lib.composeManyExtensions [
+        (
+          self.composePythonOverlay (pkgs': pkgs: pypkgs': pypkgs: let
+            callPythonPackage = pkgs.lib.callPackageWith (pkgs' // pkgs'.python3.pkgs);
+          in {
+            gdsfactory = callPythonPackage ./nix/gdsfactory.nix {};
+          })
+        )
+        (pkgs': pkgs: let
+          lib = pkgs.lib;
+          callPackage = lib.callPackageWith pkgs';
+        in {
+          # Dependencies
           ghdl-llvm = pkgs.ghdl-llvm.overrideAttrs (self: super: {
             meta.platforms = super.meta.platforms ++ ["x86_64-darwin"];
           });
@@ -60,29 +83,8 @@
           qrupdate = pkgs.qrupdate.overrideAttrs (self: super: {
             doCheck = pkgs.system != "x86_64-darwin";
           });
-        }
-      )
-      (
-        pkgs': pkgs: let
-          lib = pkgs.lib;
-          callPackage = lib.callPackageWith pkgs';
-        in {
-          # Python Packages
-          python3 = pkgs.python3.override {
-            packageOverrides = pkgs'.pythonOverrides;
-          };
 
-          pythonOverrides =
-            lib.composeExtensions (
-              let
-                callPythonPackage = lib.callPackageWith (pkgs' // pkgs'.python3.pkgs);
-              in pypkgs': pypkgs: {
-                gdsfactory = callPythonPackage ./nix/gdsfactory.nix {};
-              }
-            )
-            (if (builtins.hasAttr "pythonOverrides" pkgs) then pkgs.pythonOverrides else a: b: {});
-
-          # Other
+          # Main
           magic = callPackage ./nix/magic.nix {};
           magic-vlsi = pkgs'.magic; # alias, there's a python package called magic
           netgen = callPackage ./nix/netgen.nix {};
@@ -91,7 +93,9 @@
             inherit (self) buildPythonEnvForInterpreter;
           };
           #
-          klayout-gdsfactory = callPackage ./nix/klayout-gdsfactory.nix {};
+          klayout-gdsfactory = callPackage ./nix/klayout-gdsfactory.nix {
+            inherit (pkgs'.python3.pkgs) gdsfactory;
+          };
           surelog = callPackage ./nix/surelog.nix {};
           tclFull = callPackage ./nix/tclFull.nix {};
           tk-x11 = callPackage ./nix/tk-x11.nix {};
@@ -114,15 +118,15 @@
               yosys-synlig-sv
             ]
             ++ nixpkgs.lib.optionals pkgs.stdenv.isx86_64 [yosys-ghdl]);
-        }
-      )
-    ];
+        })
+      ];
+    };
 
     legacyPackages = self.forAllSystems (
       system:
         import nixpkgs {
           inherit system;
-          inherit (self) overlays;
+          overlays = [self.overlays.default];
         }
     );
 
