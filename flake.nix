@@ -135,6 +135,7 @@
               tk-x11 = callPackage ./nix/tk-x11.nix {};
               verilator = callPackage ./nix/verilator.nix {};
               xschem = callPackage ./nix/xschem.nix {};
+              bitwuzla = callPackage ./nix/bitwuzla.nix {};
               yosys = callPackage ./nix/yosys.nix {};
               yosys-sby = callPackage ./nix/yosys-sby.nix {};
               yosys-eqy = callPackage ./nix/yosys-eqy.nix {};
@@ -142,8 +143,14 @@
               yosys-lighter = callPackage ./nix/yosys-lighter.nix {};
               yosys-synlig-sv = callPackage ./nix/yosys-synlig-sv.nix {};
               yosys-ghdl = callPackage ./nix/yosys-ghdl.nix {};
-            }
-            // (pkgs.lib.optionalAttrs (pkgs.system == "x86_64-linux") {});
+              yosysFull = (all.yosys.withPlugins(with all; [
+                yosys-sby
+                yosys-eqy
+                yosys-f4pga-sdc
+                yosys-lighter
+                yosys-synlig-sv
+              ] ++ nixpkgs.lib.optionals pkgs.stdenv.isx86_64 [yosys-ghdl]));
+            };
         in
           all);
   };

@@ -52,15 +52,15 @@
   zlib,
   fetchurl,
   bash,
-  version ? "0.44",
-  sha256 ? "sha256-Z8Nw+cfBZNW0s9WuLU1sdgfvFvADjG4XTLrPY8m5rMM=",
-  abc-sha256 ? "sha256-zFFesCztTEyf+gg23XjGy5hXNjRwh011Ux33jnjsf90=",
+  version ? "0.46",
+  sha256 ? "sha256-ofMHVxqNd9WRJJnPiqgy7t8LorHozuOPqOf8NLl0e4U=",
+  abc-sha256 ? "sha256-4KTrbk7JIJ97gfetKOoL4TYanPT09jk1b+78H0RQ234=",
 }: let
   abc = clangStdenv.mkDerivation {
     name = "yosys-abc";
 
     src = fetchurl {
-      url = "https://github.com/YosysHQ/yosys/releases/download/yosys-${version}/abc.tar.gz";
+      url = "https://github.com/YosysHQ/yosys/releases/download/${version}/abc.tar.gz";
       sha256 = abc-sha256;
     };
 
@@ -88,11 +88,15 @@
     src = fetchFromGitHub {
       owner = "YosysHQ";
       repo = "yosys";
-      rev = "yosys-${version}";
+      rev = "${version}";
       inherit sha256;
     };
 
-    nativeBuildInputs = [pkg-config bison flex];
+    nativeBuildInputs = [
+      pkg-config
+      bison
+      flex
+    ];
     propagatedBuildInputs = [
       tcl
       libedit
@@ -102,7 +106,10 @@
       boost185
     ];
     buildInputs = [
-      python3
+      (python3.withPackages(ps: with ps; [
+        setuptools
+        wheel
+      ]))
       abc
     ];
 
@@ -141,7 +148,6 @@
     ];
 
     patches = [
-      ./patches/yosys/new-bitwuzla.patch
       ./patches/yosys/plugin-search-dirs.patch
     ];
 

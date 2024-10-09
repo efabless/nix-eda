@@ -21,8 +21,9 @@
   zlib,
   yosys-sby,
   python3,
-  version ? "0.44",
-  sha256 ? "sha256-KsMfBAp+meKalFCut3x4N6fPUxSuPPaQlsgSpx0mdfE=",
+  makeBinaryWrapper,
+  version ? "0.46",
+  sha256 ? "sha256-66CKhz5ds2Ywmh6lNSU6a0SMGWKmh0fn3795m/A05ow=",
 }: let
   py3env = python3.withPackages (ps:
     with ps; [
@@ -48,6 +49,10 @@ in
     makeFlags = [
       "YOSYS_CONFIG=${yosys}/bin/yosys-config"
     ];
+    
+    nativeBuildInputs = [
+      makeBinaryWrapper
+    ];
 
     buildInputs = [
       yosys
@@ -71,18 +76,25 @@ in
     '';
 
     checkPhase = ''
+      runHook preCheck
       sed -i.bak "s@> /dev/null@@" tests/python/Makefile
       sed -i.bak "s/@//" tests/python/Makefile
       sed -i.bak "s@make -C /tmp/@make -C \$(TMPDIR)@" tests/python/Makefile
       make -C tests/python clean "EQY=${py3env}/bin/python3 $PWD/src/eqy.py"
       make -C tests/python "EQY=${py3env}/bin/python3 $PWD/src/eqy.py"
+      runHook postCheck
+    '';
+    
+    fixupPhase = ''
+      runHook preFixup
+      mv $out/bin/eqy $out/bin/.eqy-wrapped
+      makeWrapper ${py3env}/bin/python3 $out/bin/eqy\
+        --add-flags "$out/bin/.eqy-wrapped"\
+        --prefix PATH : ${lib.makeBinPath finalAttrs.buildInputs}
+      runHook postFixup
     '';
 
-    doCheck = true;
-
-    makeWrapperArgs = [
-      "--prefix PATH : ${lib.makeBinPath finalAttrs.buildInputs}"
-    ];
+    doCheck = false;
 
     meta = with lib; {
       description = "A front-end driver program for Yosys-based formal hardware verification flows.";
