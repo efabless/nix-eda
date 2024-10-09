@@ -29,129 +29,109 @@
     nixpkgs,
     ...
   }: {
-    # Common
-    input-overlays = [
-      (
-        new: old: {
-          ## GHDL LLVM on Mac
-          ghdl-llvm = old.ghdl-llvm.overrideAttrs (self: super: {
-            meta.platforms = super.meta.platforms ++ ["x86_64-darwin"];
-          });
-
-          ## Cairo X11 on Mac
-          cairo = old.cairo.override {
-            x11Support = true;
-          };
-
-          ## slightly worse floating point errors cause ONE of the tests to fail
-          ## on x86_64-darwin
-          qrupdate = old.qrupdate.overrideAttrs (self: super: {
-            doCheck = old.system != "x86_64-darwin";
-          });
-        }
-      )
-    ];
-
     # Helper functions
     createDockerImage = import ./nix/create-docker.nix;
     buildPythonEnvForInterpreter = import ./nix/build-python-env-for-interpreter.nix;
-
-    forAllSystems = {
-      current ? null,
-      withInputs ? [],
-      overlays ? [],
-    }: function:
+    forAllSystems = fn:
       nixpkgs.lib.genAttrs [
         "x86_64-linux"
         "aarch64-linux"
         "x86_64-darwin"
         "aarch64-darwin"
-      ] (
-        system: let
-          lib = nixpkgs.lib;
-          inputOverlays = (
-            lib.foldl
-            (
-              acc: elem: let
-                packages = elem.packages."${system}";
-                pythonPackages = lib.filterAttrs (name: value: builtins.hasAttr "pythonModule" value) elem.packages."${system}";
-              in
-                acc
-                ++ lib.lists.optionals (builtins.hasAttr "input-overlays" elem) elem.input-overlays
-                ++ [
-                  (new: old: {
-                    pythonPackagesExtensions =
-                      old.pythonPackagesExtensions
-                      ++ [
-                        (pnew: pold: pythonPackages)
-                      ];
-                  })
-                  (new: old: packages)
-                ]
+      ]
+      fn;
+
+    # Common
+    overlays = [
+      (
+        pkgs': pkgs: {
+          ## GHDL LLVM on Mac
+          ghdl-llvm = pkgs.ghdl-llvm.overrideAttrs (self: super: {
+            meta.platforms = super.meta.platforms ++ ["x86_64-darwin"];
+          });
+
+          ## Cairo X11 on Mac
+          cairo = pkgs.cairo.override {
+            x11Support = true;
+          };
+
+          ## slightly worse floating point errors cause ONE of the tests to fail
+          ## on x86_64-darwin
+          qrupdate = pkgs.qrupdate.overrideAttrs (self: super: {
+            doCheck = pkgs.system != "x86_64-darwin";
+          });
+        }
+      )
+      (
+        pkgs': pkgs: let
+          lib = pkgs.lib;
+          callPackage = lib.callPackageWith pkgs';
+        in {
+          # Python Packages
+          python3 = pkgs.python3.override {
+            packageOverrides = pkgs'.pythonOverrides;
+          };
+
+          pythonOverrides =
+            lib.composeExtensions (
+              let
+                callPythonPackage = lib.callPackageWith (pkgs' // pkgs'.python3.pkgs);
+              in pypkgs': pypkgs: {
+                gdsfactory = callPythonPackage ./nix/gdsfactory.nix {};
+              }
             )
-            []
-            withInputs
-          );
-          pkgs = import nixpkgs {
-            inherit system;
-            overlays =
-              overlays
-              ++ inputOverlays
-              ++ (
-                if current == null
-                then []
-                else (lib.lists.optionals (builtins.hasAttr "input-overlays" current) current.input-overlays)
-              );
+            (if (builtins.hasAttr "pythonOverrides" pkgs) then pkgs.pythonOverrides else a: b: {});
+
+          # Other
+          magic = callPackage ./nix/magic.nix {};
+          magic-vlsi = pkgs'.magic; # alias, there's a python package called magic
+          netgen = callPackage ./nix/netgen.nix {};
+          ngspice = callPackage ./nix/ngspice.nix {};
+          klayout = callPackage ./nix/klayout.nix {
+            inherit (self) buildPythonEnvForInterpreter;
           };
-          packages-for-arch = function {
-            pkgs = pkgs;
-            callPackage = pkgs.lib.callPackageWith (pkgs // packages-for-arch);
-            callPythonPackage = pkgs.lib.callPackageWith (pkgs // pkgs.python3.pkgs // packages-for-arch);
-          };
-        in
-          packages-for-arch
-      );
+          #
+          klayout-gdsfactory = callPackage ./nix/klayout-gdsfactory.nix {};
+          surelog = callPackage ./nix/surelog.nix {};
+          tclFull = callPackage ./nix/tclFull.nix {};
+          tk-x11 = callPackage ./nix/tk-x11.nix {};
+          verilator = callPackage ./nix/verilator.nix {};
+          xschem = callPackage ./nix/xschem.nix {};
+          bitwuzla = callPackage ./nix/bitwuzla.nix {};
+          yosys = callPackage ./nix/yosys.nix {};
+          yosys-sby = callPackage ./nix/yosys-sby.nix {};
+          yosys-eqy = callPackage ./nix/yosys-eqy.nix {};
+          yosys-f4pga-sdc = callPackage ./nix/yosys-f4pga-sdc.nix {};
+          yosys-lighter = callPackage ./nix/yosys-lighter.nix {};
+          yosys-synlig-sv = callPackage ./nix/yosys-synlig-sv.nix {};
+          yosys-ghdl = callPackage ./nix/yosys-ghdl.nix {};
+          yosysFull = pkgs'.yosys.withPlugins (with pkgs';
+            [
+              yosys-sby
+              yosys-eqy
+              yosys-f4pga-sdc
+              yosys-lighter
+              yosys-synlig-sv
+            ]
+            ++ nixpkgs.lib.optionals pkgs.stdenv.isx86_64 [yosys-ghdl]);
+        }
+      )
+    ];
+
+    legacyPackages = self.forAllSystems (
+      system:
+        import nixpkgs {
+          inherit system;
+          inherit (self) overlays;
+        }
+    );
 
     # Outputs
-    packages =
-      self.forAllSystems {
-        current = self;
-        withInputs = [];
-      } (util:
-        with util; let
-          all =
-            {
-              magic = callPackage ./nix/magic.nix {};
-              magic-vlsi = all.magic; # alias, there's a python package called magic
-              netgen = callPackage ./nix/netgen.nix {};
-              ngspice = callPackage ./nix/ngspice.nix {};
-              klayout = callPackage ./nix/klayout.nix {
-                inherit (self) buildPythonEnvForInterpreter;
-              };
-              gdsfactory = callPythonPackage ./nix/gdsfactory.nix {};
-              klayout-gdsfactory = callPackage ./nix/klayout-gdsfactory.nix {};
-              surelog = callPackage ./nix/surelog.nix {};
-              tclFull = callPackage ./nix/tclFull.nix {};
-              tk-x11 = callPackage ./nix/tk-x11.nix {};
-              verilator = callPackage ./nix/verilator.nix {};
-              xschem = callPackage ./nix/xschem.nix {};
-              bitwuzla = callPackage ./nix/bitwuzla.nix {};
-              yosys = callPackage ./nix/yosys.nix {};
-              yosys-sby = callPackage ./nix/yosys-sby.nix {};
-              yosys-eqy = callPackage ./nix/yosys-eqy.nix {};
-              yosys-f4pga-sdc = callPackage ./nix/yosys-f4pga-sdc.nix {};
-              yosys-lighter = callPackage ./nix/yosys-lighter.nix {};
-              yosys-synlig-sv = callPackage ./nix/yosys-synlig-sv.nix {};
-              yosys-ghdl = callPackage ./nix/yosys-ghdl.nix {};
-              yosysFull = (all.yosys.withPlugins(with all; [
-                yosys-sby
-                yosys-eqy
-                yosys-f4pga-sdc
-                yosys-lighter
-                yosys-synlig-sv
-              ] ++ nixpkgs.lib.optionals pkgs.stdenv.isx86_64 [yosys-ghdl]));
-            };
-        in
-          all);
+    packages = self.forAllSystems (
+      system: {
+        inherit (self.legacyPackages."${system}") magic magic-vlsi netgen klayout klayout-gdsfactory surelog tclfull tk-x11 verilator xschem bitwuzla yosys yosys-sby yosys-eqy yosys-f4pga-sdc yosys-lighter yosys-synlig-sv yosys-ghdl yosysFull;
+        inherit (self.legacyPackages."${system}".python3.pkgs) gdsfactory;
+      }
+    );
   };
 }

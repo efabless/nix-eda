@@ -106,10 +106,11 @@
       boost185
     ];
     buildInputs = [
-      (python3.withPackages(ps: with ps; [
-        setuptools
-        wheel
-      ]))
+      (python3.withPackages (ps:
+        with ps; [
+          setuptools
+          wheel
+        ]))
       abc
     ];
 
