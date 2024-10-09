@@ -28,7 +28,9 @@
     self,
     nixpkgs,
     ...
-  }: {
+  }: let
+    lib = nixpkgs.lib;
+  in {
     # Helper functions
     createDockerImage = import ./nix/create-docker.nix;
     buildPythonEnvForInterpreter = import ./nix/build-python-env-for-interpreter.nix;
@@ -38,15 +40,20 @@
       };
 
       pythonOverrides =
-        pkgs.lib.composeExtensions (composable pkgs' pkgs)
+        lib.composeExtensions (composable pkgs' pkgs)
         (
           if (builtins.hasAttr "pythonOverrides" pkgs)
           then pkgs.pythonOverrides
           else _: _: {}
         );
     };
+    flakesToOverlay = flakes: (
+      lib.composeManyExtensions (builtins.map
+        (flake: _: pkgs: flake.packages."${pkgs.stdenv.system}")
+        flakes)
+    );
     forAllSystems = fn:
-      nixpkgs.lib.genAttrs [
+      lib.genAttrs [
         "x86_64-linux"
         "aarch64-linux"
         "x86_64-darwin"
@@ -56,16 +63,15 @@
 
     # Common
     overlays = {
-      default = nixpkgs.lib.composeManyExtensions [
+      default = lib.composeManyExtensions [
         (
           self.composePythonOverlay (pkgs': pkgs: pypkgs': pypkgs: let
-            callPythonPackage = pkgs.lib.callPackageWith (pkgs' // pkgs'.python3.pkgs);
+            callPythonPackage = lib.callPackageWith (pkgs' // pkgs'.python3.pkgs);
           in {
             gdsfactory = callPythonPackage ./nix/gdsfactory.nix {};
           })
         )
         (pkgs': pkgs: let
-          lib = pkgs.lib;
           callPackage = lib.callPackageWith pkgs';
         in {
           # Dependencies
@@ -117,7 +123,7 @@
               yosys-lighter
               yosys-synlig-sv
             ]
-            ++ nixpkgs.lib.optionals pkgs.stdenv.isx86_64 [yosys-ghdl]);
+            ++ lib.optionals pkgs.stdenv.isx86_64 [yosys-ghdl]);
         })
       ];
     };
