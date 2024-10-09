@@ -19,8 +19,8 @@
   boolector,
   z3,
   yices,
-  version ? "0.44",
-  sha256 ? "sha256-/oDbbdZuWPdg0Xrh+c4i283vML9QTfyWVu8kryb4WaE=",
+  version ? "0.46",
+  sha256 ? "sha256-HxWFVJNZZA58C2wyn9+2SAkviupIt1vHW5MIXMEFGBo=",
 }: let
   py3env = python3.withPackages (ps:
     with ps; [

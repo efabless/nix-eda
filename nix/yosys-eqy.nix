@@ -22,8 +22,8 @@
   yosys-sby,
   python3,
   makeBinaryWrapper,
-  version ? "0.44",
-  sha256 ? "sha256-KsMfBAp+meKalFCut3x4N6fPUxSuPPaQlsgSpx0mdfE=",
+  version ? "0.46",
+  sha256 ? "sha256-66CKhz5ds2Ywmh6lNSU6a0SMGWKmh0fn3795m/A05ow=",
 }: let
   py3env = python3.withPackages (ps:
     with ps; [
