@@ -33,7 +33,6 @@
   in {
     # Helper functions
     createDockerImage = import ./nix/create-docker.nix;
-    buildPythonEnvForInterpreter = import ;
     composePythonOverlay = composable: pkgs': pkgs: {
       python3 = pkgs.python3.override {
         packageOverrides = pkgs'.pythonOverrides;
