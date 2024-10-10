@@ -33,7 +33,7 @@
   in {
     # Helper functions
     createDockerImage = import ./nix/create-docker.nix;
-    buildPythonEnvForInterpreter = import ./nix/build-python-env-for-interpreter.nix;
+    buildPythonEnvForInterpreter = import ;
     composePythonOverlay = composable: pkgs': pkgs: {
       python3 = pkgs.python3.override {
         packageOverrides = pkgs'.pythonOverrides;
@@ -65,6 +65,11 @@
     overlays = {
       default = lib.composeManyExtensions [
         (
+          pkgs': pkgs: {
+            buildPythonEnvForInterpreter = (import ./nix/build-python-env-for-interpreter.nix) lib;
+          }
+        )
+        (
           self.composePythonOverlay (pkgs': pkgs: pypkgs': pypkgs: let
             callPythonPackage = lib.callPackageWith (pkgs' // pkgs'.python3.pkgs);
           in {
@@ -95,9 +100,7 @@
           magic-vlsi = pkgs'.magic; # alias, there's a python package called magic
           netgen = callPackage ./nix/netgen.nix {};
           ngspice = callPackage ./nix/ngspice.nix {};
-          klayout = callPackage ./nix/klayout.nix {
-            inherit (self) buildPythonEnvForInterpreter;
-          };
+          klayout = callPackage ./nix/klayout.nix {};
           #
           klayout-gdsfactory = callPackage ./nix/klayout-gdsfactory.nix {
             inherit (pkgs'.python3.pkgs) gdsfactory;

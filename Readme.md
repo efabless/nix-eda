@@ -22,13 +22,16 @@ We compile and cache the tools for the following platforms:
 * [Netgen](http://opencircuitdesign.com/netgen)
 * [ngspice](https://ngspice.sourceforge.io)
 * [KLayout](https://klayout.de)
-    * (+ `.pythonModule` for Python module)
+    * (+ `.pymod` for Python module)
+* [GDSFactory]
+    * (+ `klayout-gdsfactory` as a shorthand for an environment with both installed)
 * [Surelog](https://github.com/chipsalliance/Surelog)
 * [Verilator](https://verilator.org)
 * [Xschem](https://xschem.sourceforge.io/stefan/index.html)
 * [Yosys](https://github.com/YosysHQ/yosys)
-    * (+ `.pythonModule` for "pyosys" Python module)
+    * (+ `.pyosys` for Python module)
     * (+ some plugins that can be accessed programmatically)
+    * (`yosysFull` for all plugins)
 
 ## Usage
 
