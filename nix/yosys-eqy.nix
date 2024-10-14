@@ -49,7 +49,7 @@ in
     makeFlags = [
       "YOSYS_CONFIG=${yosys}/bin/yosys-config"
     ];
-    
+
     nativeBuildInputs = [
       makeBinaryWrapper
     ];
@@ -84,7 +84,7 @@ in
       make -C tests/python "EQY=${py3env}/bin/python3 $PWD/src/eqy.py"
       runHook postCheck
     '';
-    
+
     fixupPhase = ''
       runHook preFixup
       mv $out/bin/eqy $out/bin/.eqy-wrapped

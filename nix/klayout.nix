@@ -49,9 +49,11 @@
   fetchurl,
   buildEnv,
   makeBinaryWrapper,
-  buildPythonEnvForInterpreter,
   version ? "0.29.4",
   sha256 ? "sha256-n0UXDUFPxiAy+cZh+sDQTsUzKClYDsYB6SKLeAxWX2Q=",
+  # Python environments
+  klayout,
+  buildPythonEnvForInterpreter,
 }: let
   pythonModule = python3.pkgs.toPythonModule (clangStdenv.mkDerivation {
     name = "${python3.name}-klayout";
@@ -162,7 +164,7 @@
       pymod = pythonModule;
 
       withPythonPackages = buildPythonEnvForInterpreter {
-        target = self;
+        target = klayout;
         inherit lib;
         inherit buildEnv;
         inherit makeBinaryWrapper;
