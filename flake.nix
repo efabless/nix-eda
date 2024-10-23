@@ -101,9 +101,7 @@
           ngspice = callPackage ./nix/ngspice.nix {};
           klayout = callPackage ./nix/klayout.nix {};
           #
-          klayout-gdsfactory = callPackage ./nix/klayout-gdsfactory.nix {
-            inherit (pkgs'.python3.pkgs) gdsfactory;
-          };
+          klayout-gdsfactory = callPackage ./nix/klayout-gdsfactory.nix {};
           surelog = callPackage ./nix/surelog.nix {};
           tclFull = callPackage ./nix/tclFull.nix {};
           tk-x11 = callPackage ./nix/tk-x11.nix {};
@@ -141,7 +139,7 @@
     # Outputs
     packages = self.forAllSystems (
       system: {
-        inherit (self.legacyPackages."${system}") magic magic-vlsi netgen klayout klayout-gdsfactory surelog tclfull tk-x11 verilator xschem bitwuzla yosys yosys-sby yosys-eqy yosys-f4pga-sdc yosys-lighter yosys-synlig-sv yosys-ghdl yosysFull;
+        inherit (self.legacyPackages."${system}") magic magic-vlsi netgen klayout surelog tclfull tk-x11 verilator xschem bitwuzla yosys yosys-sby yosys-eqy yosys-f4pga-sdc yosys-lighter yosys-synlig-sv yosys-ghdl yosysFull;
         inherit (self.legacyPackages."${system}".python3.pkgs) gdsfactory;
       }
     );

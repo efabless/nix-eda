@@ -92,7 +92,11 @@ in
           ''
           + postBuild;
 
-        inherit (python3) meta;
+        meta = {
+          inherit (target.meta) license platforms broken;
+          mainProgram = target.meta.mainProgram or target.pname or target.name;
+          description = "Python environment for ${target.name}";
+        };
 
         passthru =
           python3.passthru
