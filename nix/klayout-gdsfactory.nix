@@ -13,13 +13,7 @@
 # limitations under the License.
 {
   klayout,
-  gdsfactory,
-}: let
-  self = klayout.withPythonPackages (
-    ps:
-      with ps; [
-        gdsfactory
-      ]
-  );
-in
-  self
+}:
+  klayout.withPythonPackages(ps: with ps; [
+    gdsfactory
+  ])
