@@ -73,6 +73,10 @@
             callPythonPackage = lib.callPackageWith (pkgs' // pkgs'.python3.pkgs);
           in {
             gdsfactory = callPythonPackage ./nix/gdsfactory.nix {};
+            gdstk = callPythonPackage ./nix/gdstk.nix {};
+            antlr4_9-runtime = callPythonPackage ./nix/python3-antlr4-runtime.nix {
+              antlr4 = pkgs'.antlr4_9;
+            };
           })
         )
         (pkgs': pkgs: let
@@ -140,7 +144,7 @@
     packages = self.forAllSystems (
       system: {
         inherit (self.legacyPackages."${system}") magic magic-vlsi netgen klayout klayout-gdsfactory surelog tclfull tk-x11 verilator xschem bitwuzla yosys yosys-sby yosys-eqy yosys-f4pga-sdc yosys-lighter yosys-synlig-sv yosys-ghdl yosysFull;
-        inherit (self.legacyPackages."${system}".python3.pkgs) gdsfactory;
+        inherit (self.legacyPackages."${system}".python3.pkgs) gdsfactory gdstk;
       }
     );
   };
