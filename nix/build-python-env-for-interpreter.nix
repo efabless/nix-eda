@@ -93,10 +93,10 @@ in
           + postBuild;
 
         meta = {
-          inherit (target.meta) license platforms broken;
           mainProgram = target.meta.mainProgram or target.pname or target.name;
           description = "Python environment for ${target.name}";
-        };
+        }
+        // lib.attrsets.filterAttrs (k: v: builtins.elem k ["license" "platforms" "broken"]) target.meta;
 
         passthru =
           python3.passthru
