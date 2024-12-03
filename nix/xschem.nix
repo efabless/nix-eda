@@ -46,13 +46,13 @@
 }:
 stdenv.mkDerivation {
   pname = "xschem";
-  version = "3.4.5-34-gf850877b"; # Run 'git describe' on the xschem repo
+  version = "3.4.5-147-gce99d093"; # Run 'git describe' on the xschem repo
 
   src = fetchFromGitHub {
     owner = "StefanSchippers";
     repo = "xschem";
-    rev = "f850877b1e0fa6fc36ac4624f0a1ed1473ea7b52";
-    sha256 = "sha256-923iwqodpR7TpxGl6J7BhPhx2Vi8/cDbL02n8fSTzO4=";
+    rev = "ce99d093c49d097a1c124b2d111ffe49db63116b";
+    sha256 = "sha256-P0a44/osRZBAfwoLLDdTxbLdzERzO/sEt+pCUsyDfhc=";
   };
 
   nativeBuildInputs = [bison flex pkg-config];

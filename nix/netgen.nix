@@ -19,8 +19,8 @@
   tk,
   m4,
   python3,
-  rev ? "1.5.278",
-  sha256 ? "sha256-MiA26PLu1rcu2bC0GM30c/c1KVgVvJGup9d22G8TA6w=",
+  rev ? "1.5.287",
+  sha256 ? "sha256-Zp44BVVAq8Ok/ZMI8F8C5uKASV103STuyOpXdiN5tlw=",
 }:
 clangStdenv.mkDerivation {
   name = "netgen";
