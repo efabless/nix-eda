@@ -18,10 +18,12 @@
   python3,
   bash,
   rev ? "dfe9b1a15b494e7dd81a2b394dac30ea707ec5cc",
+  rev-date ? "2024-01-23",
   sha256 ? "sha256-NJnu/uFCF+esqV2hrZughn1gdZXQJNTJbl1VyKns3XE=",
 }:
 yosys.stdenv.mkDerivation (finalAttrs: {
-  name = "yosys-f4pga-sdc";
+  pname = "yosys-f4pga-sdc";
+  version = rev-date;
   dylibs = ["sdc" "design_introspection"];
 
   src = fetchFromGitHub {

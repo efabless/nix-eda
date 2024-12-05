@@ -52,6 +52,7 @@
   cython_0,
   ruamel-yaml,
   jinja2,
+  graphviz,
 }: let
   rectangle-packer = buildPythonPackage {
     pname = "rectangle-packer";
@@ -115,7 +116,7 @@
   kfactory = buildPythonPackage {
     pname = "kfactory";
     format = "pyproject";
-    version = "0.18.4";
+    version = "0.21.7";
 
     buildInputs = [
       setuptools
@@ -141,7 +142,7 @@
 
     src = fetchPypi {
       inherit (kfactory) pname version;
-      sha256 = "sha256-2thvsHTlc61U5LiaDLlEAcKYY7Vh2ZGe5Z7tAN1sUtQ=";
+      sha256 = "sha256-+e7n00nFTPxnUP36mdpbz4G8ntq9Ay/R7+sdIRQoI1E=";
     };
     doCheck = false;
   };
@@ -169,7 +170,7 @@
   self = buildPythonPackage {
     pname = "gdsfactory";
     format = "pyproject";
-    version = "8.7.3";
+    version = "8.19.0";
 
     buildInputs = [
       flit-core
@@ -202,11 +203,12 @@
       ipykernel
       attrs
       jinja2
+      graphviz
     ];
 
     src = fetchPypi {
       inherit (self) pname version;
-      sha256 = "sha256-F2XMb1bSlg3Psydp1rag7Z4jO9+o23d0EySDY4WhqbI=";
+      sha256 = "sha256-J5MsnYx0GzvzhjVJK6Sa5TrYdx98OQwDXaUGX7AabvQ=";
     };
     doCheck = false;
 

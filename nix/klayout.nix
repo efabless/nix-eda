@@ -49,8 +49,8 @@
   fetchurl,
   buildEnv,
   makeBinaryWrapper,
-  version ? "0.29.4",
-  sha256 ? "sha256-n0UXDUFPxiAy+cZh+sDQTsUzKClYDsYB6SKLeAxWX2Q=",
+  version ? "0.29.9",
+  sha256 ? "sha256-iCzq4+uZLBE3rJ/iAOzRfloXaZQv5WYEw66esogNTGM=",
   # Python environments
   klayout,
   buildPythonEnvForInterpreter,
@@ -73,7 +73,7 @@
     };
   });
   self = clangStdenv.mkDerivation {
-    name = "klayout";
+    pname = "klayout";
     inherit version;
 
     src = fetchurl {

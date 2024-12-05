@@ -47,14 +47,16 @@
   capnproto,
   nlohmann_json,
   rev ? "3e9c2d03c8164f76bf289f141856303477df5dec",
+  rev-date ? "2023-08-07",
   sha256 ? "sha256-c4i/1tUONb5sz3OD1w8FSD7VRn/xoBGaVX7ChmujGCk=",
 }:
 stdenv.mkDerivation (finalAttrs: {
-  name = "surelog";
-
+  pname = "surelog";
+  version = rev-date;
+  
   src = fetchFromGitHub {
     owner = "chipsalliance";
-    repo = finalAttrs.name;
+    repo = finalAttrs.pname;
     inherit rev;
     inherit sha256;
     fetchSubmodules = true; # Use the included UHDM to avoid extreme brainrot

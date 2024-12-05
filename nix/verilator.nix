@@ -41,17 +41,18 @@
   which,
   glibcLocales,
   lib,
-  rev ? "67dfa37c560385827218350ea936eb1baf604240",
+  version ? "v5.018",
+  rev ? null,
   sha256 ? "sha256-f06UzNw2MQ5me03EPrVFhkwxKum/GLDzQbDNTBsJMJs=",
 }:
 clangStdenv.mkDerivation {
-  name = "verilator";
-  inherit rev;
+  pname = "verilator";
+  inherit version;
 
   src = fetchFromGitHub {
     owner = "verilator";
     repo = "verilator";
-    inherit rev;
+    rev = if rev == null then version else rev;
     inherit sha256;
   };
 

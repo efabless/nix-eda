@@ -47,14 +47,15 @@
   readline,
   llvmPackages,
   version ? "43",
+  sha256 ? "sha256-FN1qbwhTHyBRwTrmN5CkVwi9Q/PneIamqEiYwpexNpk=",
 }:
 clangStdenv.mkDerivation {
-  name = "ngspice";
+  pname = "ngspice";
   inherit version;
 
   src = fetchurl {
     url = "mirror://sourceforge/ngspice/ngspice-${version}.tar.gz";
-    hash = "sha256-FN1qbwhTHyBRwTrmN5CkVwi9Q/PneIamqEiYwpexNpk=";
+    inherit sha256;
   };
 
   nativeBuildInputs = [

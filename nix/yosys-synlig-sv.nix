@@ -21,6 +21,7 @@
   pkg-config,
   writeText,
   rev ? "fd4b2bd9510c02c4cf42f8c4c6468c5c0a7dd9e6",
+  rev-date ? "2024-08-07",
   sha256 ? "sha256-yj+SBq6PqgPBcgz2zHZ9AUppllG/dqetU7lWPkFC+iE=",
 }: let
   yosys-mk = writeText "yosys-mk" ''
@@ -32,7 +33,9 @@
   '';
 in
   yosys.stdenv.mkDerivation (finalAttrs: {
-    name = "yosys-synlig-sv";
+    pname = "yosys-synlig-sv";
+    version = rev-date;
+    
     dylibs = ["synlig-sv"];
 
     src = fetchFromGitHub {
