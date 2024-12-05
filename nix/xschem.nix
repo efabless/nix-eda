@@ -43,16 +43,19 @@
   pkg-config,
   tcl,
   tk-x11,
+  version ? "3.4.5-147-gce99d093", # Run 'git describe' on the xschem repo
+  rev ? "ce99d093c49d097a1c124b2d111ffe49db63116b",
+  sha256 ? "sha256-P0a44/osRZBAfwoLLDdTxbLdzERzO/sEt+pCUsyDfhc=",
 }:
 stdenv.mkDerivation {
   pname = "xschem";
-  version = "3.4.5-147-gce99d093"; # Run 'git describe' on the xschem repo
+  inherit version;
 
   src = fetchFromGitHub {
     owner = "StefanSchippers";
     repo = "xschem";
-    rev = "ce99d093c49d097a1c124b2d111ffe49db63116b";
-    sha256 = "sha256-P0a44/osRZBAfwoLLDdTxbLdzERzO/sEt+pCUsyDfhc=";
+    inherit rev;
+    inherit sha256;
   };
 
   nativeBuildInputs = [bison flex pkg-config];

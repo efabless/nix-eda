@@ -42,10 +42,13 @@
   ghdl-llvm,
   pkg-config,
   rev ? "c9b05e481423c55ffcbb856fd5296701f670808c",
+  rev-date ? "2022-01-11",
   sha256 ? "sha256-tT2+DXUtbJIBzBUBcyG2sz+3G+dTkciLVIczcRPr0Jw=",
 }:
 yosys.stdenv.mkDerivation {
-  name = "yosys-ghdl";
+  pname = "yosys-ghdl";
+  version = rev-date;
+  
   dylibs = ["ghdl"];
 
   src = fetchFromGitHub {

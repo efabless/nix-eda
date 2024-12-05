@@ -88,7 +88,7 @@
   };
 in
   clangStdenv.mkDerivation {
-    name = "yosys";
+    pname = "yosys";
     inherit version;
 
     src = fetchFromGitHub {
@@ -123,7 +123,8 @@ in
     passthru = {
       inherit python3;
       pyosys = python3.pkgs.toPythonModule (clangStdenv.mkDerivation {
-        name = "${python3.name}-pyosys";
+        pname = "${python3.name}-pyosys";
+        version = yosys.version;
         buildInputs = [yosys];
         unpackPhase = "true";
         installPhase = ''
@@ -148,7 +149,8 @@ in
           concatStringsSep " "
           (map (so: "--add-flags -m --add-flags ${so}") dylibs);
       in (symlinkJoin {
-        name = "${yosys.name}-with-plugins";
+        pname = "${yosys.pname}-with-plugins";
+        version = yosys.version;
         paths = paths ++ [yosys];
         nativeBuildInputs = [makeWrapper];
         postBuild = ''

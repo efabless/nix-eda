@@ -19,15 +19,18 @@
   tk,
   m4,
   python3,
-  rev ? "1.5.287",
+  version ? "1.5.287",
+  rev ? null,
   sha256 ? "sha256-Zp44BVVAq8Ok/ZMI8F8C5uKASV103STuyOpXdiN5tlw=",
 }:
 clangStdenv.mkDerivation {
-  name = "netgen";
+  pname = "netgen";
+  inherit version;
+  
   src = fetchFromGitHub {
     owner = "RTimothyEdwards";
     repo = "netgen";
-    inherit rev;
+    rev = if rev == null then version else rev;
     inherit sha256;
   };
 

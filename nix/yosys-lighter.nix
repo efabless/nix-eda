@@ -17,10 +17,13 @@
   yosys,
   python3,
   rev ? "b8e7d4ece5d6e22ab62c03eead761c736dbcaf3c",
+  rev-date ? "2023-09-29",
   sha256 ? "sha256-gftQwWrq7KVVQXfb/SThOvbEJK0DoPpiQ3f3X1thBiQ=",
 }:
 yosys.stdenv.mkDerivation (finalAttrs: {
-  name = "yosys-lighter";
+  pname = "yosys-lighter";
+  version = rev-date;
+  
   dylibs = ["lighter"];
 
   src = fetchFromGitHub {

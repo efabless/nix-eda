@@ -20,7 +20,7 @@
   z3,
   yices,
   version ? "0.46",
-  sha256 ? "sha256-HxWFVJNZZA58C2wyn9+2SAkviupIt1vHW5MIXMEFGBo=",
+  sha256 ? "sha256-Il2pXw2doaoZrVme2p0dSUUa8dCQtJJrmYitn1MkTD4=",
 }: let
   py3env = python3.withPackages (ps:
     with ps; [
@@ -28,7 +28,8 @@
     ]);
 in
   yosys.stdenv.mkDerivation (finalAttrs: {
-    name = "yosys-sby";
+    pname = "yosys-sby";
+    inherit version;
     dylibs = [];
 
     src = fetchFromGitHub {

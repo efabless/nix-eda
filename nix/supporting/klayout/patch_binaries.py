@@ -12,7 +12,7 @@ rpath = args[0]
 so_path = args[1]
 klayout_bin = args[2]
 
-flags = ["-add_rpath", rpath]
+flags = []  # ["-add_rpath", rpath] <- No longer needed starting NixOS 24.11
 
 top_level_dylibs = [dylib for dylib in os.listdir(rpath) if dylib.endswith(".dylib")]
 for dylib in top_level_dylibs:

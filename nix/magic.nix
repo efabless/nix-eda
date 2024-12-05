@@ -45,17 +45,18 @@
   cairo,
   python3,
   gnused,
-  rev ? "8.3.503",
+  version ? "8.3.503",
+  rev ? null,
   sha256 ? "sha256-jM7CdDdYu0cJZEhC42p4b250EQTq7XQbkZaIDFnIvXU=",
 }:
 clangStdenv.mkDerivation {
-  name = "magic-vlsi";
-  inherit rev;
+  pname = "magic-vlsi";
+  inherit version;
 
   src = fetchFromGitHub {
     owner = "RTimothyEdwards";
     repo = "magic";
-    inherit rev;
+    rev = if rev == null then version else rev;
     inherit sha256;
   };
 
@@ -87,7 +88,7 @@ clangStdenv.mkDerivation {
     patchShebangs ./scripts
 
     # "Precompute" git rev-parse HEAD
-    sed -i 's@`git rev-parse HEAD`@${rev}@' ./scripts/defs.mak.in
+    sed -i 's@`git rev-parse HEAD`@${version}@' ./scripts/defs.mak.in
   '';
 
   fixupPhase = ''

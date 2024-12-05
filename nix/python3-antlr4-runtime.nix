@@ -18,6 +18,7 @@
 }:
 buildPythonPackage {
   pname = "${antlr4.pname}-python3-runtime";
+  inherit (antlr4) version;
   inherit (antlr4.runtime.cpp) version src meta;
   
   doCheck = false; # "mocks" not packaged for NixOS
