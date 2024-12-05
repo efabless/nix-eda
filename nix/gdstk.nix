@@ -17,6 +17,10 @@
     pname = "gdstk";
     format = "pyproject";
     inherit version;
+    
+    postPatch = ''
+      sed -i '/oldest-supported-numpy/d' pyproject.toml
+    '';
 
     nativeBuildInputs = [
       scikit-build-core
