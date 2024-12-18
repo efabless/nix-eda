@@ -26,11 +26,14 @@
 clangStdenv.mkDerivation {
   pname = "netgen";
   inherit version;
-  
+
   src = fetchFromGitHub {
     owner = "RTimothyEdwards";
     repo = "netgen";
-    rev = if rev == null then version else rev;
+    rev =
+      if rev == null
+      then version
+      else rev;
     inherit sha256;
   };
 

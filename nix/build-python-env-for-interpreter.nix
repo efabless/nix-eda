@@ -32,7 +32,8 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-lib: lib.makeOverridable ({
+lib:
+lib.makeOverridable ({
   target,
   lib,
   buildEnv,
@@ -92,11 +93,12 @@ in
           ''
           + postBuild;
 
-        meta = {
-          mainProgram = target.meta.mainProgram or target.pname or target.name;
-          description = "Python environment for ${target.name}";
-        }
-        // lib.attrsets.filterAttrs (k: v: builtins.elem k ["license" "platforms" "broken"]) target.meta;
+        meta =
+          {
+            mainProgram = target.meta.mainProgram or target.pname or target.name;
+            description = "Python environment for ${target.name}";
+          }
+          // lib.attrsets.filterAttrs (k: v: builtins.elem k ["license" "platforms" "broken"]) target.meta;
 
         passthru =
           python3.passthru

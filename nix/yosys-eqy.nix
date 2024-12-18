@@ -33,7 +33,7 @@ in
   yosys.stdenv.mkDerivation (finalAttrs: {
     pname = "yosys-eqy";
     inherit version;
-    
+
     dylibs = [
       "eqy_combine"
       "eqy_partition"

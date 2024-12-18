@@ -23,7 +23,7 @@
 yosys.stdenv.mkDerivation (finalAttrs: {
   pname = "yosys-lighter";
   version = rev-date;
-  
+
   dylibs = ["lighter"];
 
   src = fetchFromGitHub {

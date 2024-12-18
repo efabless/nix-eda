@@ -35,7 +35,7 @@ in
   yosys.stdenv.mkDerivation (finalAttrs: {
     pname = "yosys-synlig-sv";
     version = rev-date;
-    
+
     dylibs = ["synlig-sv"];
 
     src = fetchFromGitHub {

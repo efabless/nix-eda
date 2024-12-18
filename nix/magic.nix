@@ -56,7 +56,10 @@ clangStdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "RTimothyEdwards";
     repo = "magic";
-    rev = if rev == null then version else rev;
+    rev =
+      if rev == null
+      then version
+      else rev;
     inherit sha256;
   };
 

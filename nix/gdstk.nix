@@ -17,7 +17,7 @@
     pname = "gdstk";
     format = "pyproject";
     inherit version;
-    
+
     postPatch = ''
       sed -i '/oldest-supported-numpy/d' pyproject.toml
     '';
@@ -28,9 +28,9 @@
       ninja
       pyproject-metadata
     ];
-    
+
     dontUseCmakeConfigure = true;
-    
+
     buildInputs = [
       zlib
       qhull
@@ -54,4 +54,5 @@
       platforms = lib.platforms.unix;
     };
   };
-in self
+in
+  self

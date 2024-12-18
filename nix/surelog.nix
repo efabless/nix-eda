@@ -53,7 +53,7 @@
 stdenv.mkDerivation (finalAttrs: {
   pname = "surelog";
   version = rev-date;
-  
+
   src = fetchFromGitHub {
     owner = "chipsalliance";
     repo = finalAttrs.pname;

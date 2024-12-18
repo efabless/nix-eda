@@ -83,21 +83,24 @@
           callPackage = lib.callPackageWith pkgs';
         in {
           # Dependencies
-          ghdl-llvm = pkgs.ghdl-llvm.overrideAttrs (self: super: {
-            meta.platforms = super.meta.platforms ++ ["x86_64-darwin"];
-          });
+          ## Newer versions have worse performance with Yosys
+          bitwuzla = callPackage ./nix/bitwuzla.nix {};
 
           ## Cairo X11 on Mac
           cairo = pkgs.cairo.override {
             x11Support = true;
           };
+          
+          ghdl-llvm = pkgs.ghdl-llvm.overrideAttrs (self: super: {
+            meta.platforms = super.meta.platforms ++ ["x86_64-darwin"];
+          });
 
           ## slightly worse floating point errors cause ONE of the tests to fail
           ## on x86_64-darwin
           qrupdate = pkgs.qrupdate.overrideAttrs (self: super: {
             doCheck = pkgs.system != "x86_64-darwin";
           });
-
+          
           # Main
           magic = callPackage ./nix/magic.nix {};
           magic-vlsi = pkgs'.magic; # alias, there's a python package called magic
@@ -111,7 +114,6 @@
           tk-x11 = callPackage ./nix/tk-x11.nix {};
           verilator = callPackage ./nix/verilator.nix {};
           xschem = callPackage ./nix/xschem.nix {};
-          bitwuzla = callPackage ./nix/bitwuzla.nix {};
           yosys = callPackage ./nix/yosys.nix {};
           yosys-sby = callPackage ./nix/yosys-sby.nix {};
           yosys-eqy = callPackage ./nix/yosys-eqy.nix {};

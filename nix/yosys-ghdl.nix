@@ -48,7 +48,7 @@
 yosys.stdenv.mkDerivation {
   pname = "yosys-ghdl";
   version = rev-date;
-  
+
   dylibs = ["ghdl"];
 
   src = fetchFromGitHub {
