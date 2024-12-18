@@ -124,7 +124,7 @@
         python3 ./setup.py egg_info
         ./build.sh\
           -prefix $out/lib\
-          -without-qtbinding\
+          -with-qtbinding\
           -python $(which python3)\
           -ruby $(which ruby)\
           -expert\
