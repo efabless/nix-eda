@@ -50,7 +50,7 @@
       setuptools_scm
     ];
     
-    buildInputs = [
+    propagatedBuildInputs = [
       ply
       schema
       pathspec
