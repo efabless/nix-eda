@@ -74,6 +74,7 @@
           in {
             gdsfactory = callPythonPackage ./nix/gdsfactory.nix {};
             gdstk = callPythonPackage ./nix/gdstk.nix {};
+            tclint = callPythonPackage ./nix/tclint.nix {};
             antlr4_9-runtime = callPythonPackage ./nix/python3-antlr4-runtime.nix {
               antlr4 = pkgs'.antlr4_9;
             };
@@ -90,7 +91,7 @@
           cairo = pkgs.cairo.override {
             x11Support = true;
           };
-          
+
           ghdl-llvm = pkgs.ghdl-llvm.overrideAttrs (self: super: {
             meta.platforms = super.meta.platforms ++ ["x86_64-darwin"];
           });
@@ -100,7 +101,7 @@
           qrupdate = pkgs.qrupdate.overrideAttrs (self: super: {
             doCheck = pkgs.system != "x86_64-darwin";
           });
-          
+
           # Main
           magic = callPackage ./nix/magic.nix {};
           magic-vlsi = pkgs'.magic; # alias, there's a python package called magic
@@ -146,7 +147,7 @@
     packages = self.forAllSystems (
       system: {
         inherit (self.legacyPackages."${system}") magic magic-vlsi netgen klayout klayout-gdsfactory surelog tclfull tk-x11 verilator xschem ngspice bitwuzla yosys yosys-sby yosys-eqy yosys-f4pga-sdc yosys-lighter yosys-synlig-sv yosys-ghdl yosysFull;
-        inherit (self.legacyPackages."${system}".python3.pkgs) gdsfactory gdstk;
+        inherit (self.legacyPackages."${system}".python3.pkgs) gdsfactory gdstk tclint;
       }
     );
   };
