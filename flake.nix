@@ -34,17 +34,9 @@
     # Helper functions
     createDockerImage = import ./nix/create-docker.nix;
     composePythonOverlay = composable: pkgs': pkgs: {
-      python3 = pkgs.python3.override {
-        packageOverrides = pkgs'.pythonOverrides;
-      };
-
-      pythonOverrides =
-        lib.composeExtensions (composable pkgs' pkgs)
-        (
-          if (builtins.hasAttr "pythonOverrides" pkgs)
-          then pkgs.pythonOverrides
-          else _: _: {}
-        );
+      pythonPackagesExtensions = pkgs.pythonPackagesExtensions ++ [
+        (composable pkgs' pkgs)
+      ];
     };
     flakesToOverlay = flakes: (
       lib.composeManyExtensions (builtins.map
