@@ -43,9 +43,9 @@
   pkg-config,
   tcl,
   tk-x11,
-  version ? "3.4.5-147-gce99d093", # Run 'git describe' on the xschem repo
-  rev ? "ce99d093c49d097a1c124b2d111ffe49db63116b",
-  sha256 ? "sha256-P0a44/osRZBAfwoLLDdTxbLdzERzO/sEt+pCUsyDfhc=",
+  version ? "3.4.6-106-g315c5bd6", # Run 'git describe' on the xschem repo
+  rev ? "315c5bd600945a596fda9a17a630d08009153476",
+  sha256 ? "sha256-H89aYuwl9qnya9H6Qo5Q2SkxgrKA0dkHeVghCwyoKiE=",
 }:
 stdenv.mkDerivation {
   pname = "xschem";
