@@ -28,6 +28,8 @@ We compile and cache the tools for the following platforms:
 * [Surelog](https://github.com/chipsalliance/Surelog)
 * [Verilator](https://verilator.org)
 * [Xschem](https://xschem.sourceforge.io/stefan/index.html)
+* [Xyce](https://github.com/xyce/xyce)
+    * Linux only.
 * [Yosys](https://github.com/YosysHQ/yosys)
     * (+ `.pyosys` for Python module)
     * (+ some plugins that can be accessed programmatically)

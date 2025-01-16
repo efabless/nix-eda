@@ -36,7 +36,7 @@
       rev = "v${self.version}";
       inherit sha256;
     };
-    
+
     patchPhase = ''
       runHook prePatch
       sed -Ei 's/schema==[0-9.]+/schema==${schema.version}/' pyproject.toml
@@ -44,12 +44,12 @@
       sed -Ei 's/importlib-metadata==[0-9.]+/importlib-metadata==${importlib-metadata.version}/' pyproject.toml
       runHook postPatch
     '';
-    
+
     nativeBuildInputs = [
       setuptools
       setuptools_scm
     ];
-    
+
     propagatedBuildInputs = [
       ply
       schema
