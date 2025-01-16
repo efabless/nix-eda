@@ -10,15 +10,12 @@ jobs:
       matrix:
         os: [
             {
-              name: "Ubuntu 22.04",
+              name: "Ubuntu 24.04",
               family: "linux",
-              runner: "ubuntu-22.04",
+              runner: "ubuntu-24.04",
               archs: "x86_64",
             },
-            ## Aarch64 is disabled for now: GitHub is committing to EOY
-            ## for free aarch64 runners for open-source projects and
-            ## emulation times out:
-            ## https://github.com/orgs/community/discussions/19197#discussioncomment-10550689
+            ## https://github.com/github/roadmap/issues/970
             # {
             #   name: "Ubuntu 22.04",
             #   family: "linux",
@@ -37,15 +34,6 @@ jobs:
               runner: "macos-14",
               archs: "arm64",
             },
-            ## Windows is disabled because of an issue with compiling FFI as
-            ## under MinGW in the GitHub Actions environment (SHELL variable has
-            ## whitespace.)
-            # {
-            #   name: "Windows Server 2019",
-            #   family: "windows",
-            #   runner: "windows-2019",
-            #   archs: "AMD64",
-            # },
           ]
     name: Nix Builds | ${{ matrix.os.name }} | ${{ matrix.os.archs }}
     runs-on: ${{ matrix.os.runner }}
@@ -56,6 +44,5 @@ jobs:
         with:
           name: openlane
           authToken: ${{ env.CACHIX_TOKEN }}
-      - run: nix build .#ngspice
-
-      # Add steps for your workflow here, such as building and testing your code
+      - run: |
+          python3 ./.github/workflows/get_all_packages.py | xargs nix build
