@@ -1,0 +1,48 @@
+name: Build with Nix
+
+on:
+  push:
+
+jobs:
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [
+            {
+              name: "Ubuntu 24.04",
+              family: "linux",
+              runner: "ubuntu-24.04",
+              archs: "x86_64",
+            },
+            ## https://github.com/github/roadmap/issues/970
+            # {
+            #   name: "Ubuntu 22.04",
+            #   family: "linux",
+            #   runner: "ubuntu-22.04",
+            #   archs: "aarch64",
+            # },
+            {
+              name: "macOS 13",
+              family: "macos",
+              runner: "macos-13",
+              archs: "x86_64",
+            },
+            {
+              name: "macOS 14",
+              family: "macos",
+              runner: "macos-14",
+              archs: "arm64",
+            },
+          ]
+    name: Nix Builds | ${{ matrix.os.name }} | ${{ matrix.os.archs }}
+    runs-on: ${{ matrix.os.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: cachix/cachix-action@v14
+        with:
+          name: openlane
+          authToken: ${{ secrets.CACHIX_TOKEN }}
+      - run: |
+          python3 ./.github/workflows/get_all_packages.py | xargs nix build

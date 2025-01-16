@@ -46,8 +46,8 @@
   libtool,
   readline,
   llvmPackages,
-  version ? "43",
-  sha256 ? "sha256-FN1qbwhTHyBRwTrmN5CkVwi9Q/PneIamqEiYwpexNpk=",
+  version ? "44",
+  sha256 ? "sha256-OGXROrRPHwH2jHrA4HFphORdzlqG0SZgPCbY3zAWHps=",
 }:
 clangStdenv.mkDerivation {
   pname = "ngspice";

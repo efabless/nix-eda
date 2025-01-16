@@ -34,9 +34,11 @@
     # Helper functions
     createDockerImage = import ./nix/create-docker.nix;
     composePythonOverlay = composable: pkgs': pkgs: {
-      pythonPackagesExtensions = pkgs.pythonPackagesExtensions ++ [
-        (composable pkgs' pkgs)
-      ];
+      pythonPackagesExtensions =
+        pkgs.pythonPackagesExtensions
+        ++ [
+          (composable pkgs' pkgs)
+        ];
     };
     flakesToOverlay = flakes: (
       lib.composeManyExtensions (builtins.map
@@ -107,6 +109,7 @@
           tk-x11 = callPackage ./nix/tk-x11.nix {};
           verilator = callPackage ./nix/verilator.nix {};
           xschem = callPackage ./nix/xschem.nix {};
+          xyce = callPackage ./nix/xyce.nix {};
           yosys = callPackage ./nix/yosys.nix {};
           yosys-sby = callPackage ./nix/yosys-sby.nix {};
           yosys-eqy = callPackage ./nix/yosys-eqy.nix {};
@@ -137,10 +140,17 @@
 
     # Outputs
     packages = self.forAllSystems (
-      system: {
-        inherit (self.legacyPackages."${system}") magic magic-vlsi netgen klayout klayout-gdsfactory surelog tclfull tk-x11 verilator xschem ngspice bitwuzla yosys yosys-sby yosys-eqy yosys-f4pga-sdc yosys-lighter yosys-synlig-sv yosys-ghdl yosysFull;
-        inherit (self.legacyPackages."${system}".python3.pkgs) gdsfactory gdstk tclint;
-      }
+      system:
+        {
+          inherit (self.legacyPackages."${system}") magic magic-vlsi netgen klayout klayout-gdsfactory surelog tclFull tk-x11 verilator xschem ngspice bitwuzla yosys yosys-sby yosys-eqy yosys-f4pga-sdc yosys-lighter yosys-synlig-sv yosysFull;
+          inherit (self.legacyPackages."${system}".python3.pkgs) gdsfactory gdstk tclint;
+        }
+        // lib.optionalAttrs self.legacyPackages."${system}".stdenv.hostPlatform.isLinux {
+          inherit (self.legacyPackages."${system}") xyce;
+        }
+        // lib.optionalAttrs self.legacyPackages."${system}".stdenv.hostPlatform.isx86_64 {
+          inherit (self.legacyPackages."${system}") yosys-ghdl;
+        }
     );
   };
 }
