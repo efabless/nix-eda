@@ -43,6 +43,6 @@ jobs:
       - uses: cachix/cachix-action@v14
         with:
           name: openlane
-          authToken: ${{ env.CACHIX_TOKEN }}
+          authToken: ${{ secrets.CACHIX_TOKEN }}
       - run: |
           python3 ./.github/workflows/get_all_packages.py | xargs nix build
