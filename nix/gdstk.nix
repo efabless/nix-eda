@@ -18,6 +18,16 @@
     format = "pyproject";
     inherit version;
 
+    src = fetchPypi {
+      inherit (self) pname version;
+      inherit sha256;
+    };
+
+    prePatch = ''
+      sed -Ei.bak 's/cmake.version = ">=(.+?)"/cmake.minimum-version = "\1"/' pyproject.toml
+      sed -i.bak '/oldest-supported-numpy/d' pyproject.toml
+    '';
+
     nativeBuildInputs = [
       scikit-build-core
       cmake
@@ -36,12 +46,6 @@
       numpy
       pathspec
     ];
-
-    src = fetchPypi {
-      inherit (self) pname version;
-      inherit sha256;
-    };
-    doCheck = false;
 
     meta = {
       description = "Python module for creation and manipulation of GDSII files.";
